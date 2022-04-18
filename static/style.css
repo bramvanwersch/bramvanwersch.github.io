@@ -1,24 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Short+Stack&display=swap');
 body {
-    background-color: #adadad;
-    color: black;
-    font-family: verdana;
-    font-size: 20px;
-}
-p {
-    font-family: verdana;
-    font-size: 20px;
-    color:red
-}
-
-aside {
-    display: block;
-}
-
-#para1 {
-    text-align: right;
-    color: black;
-}
-
-#top_text{
-    text-align: center
+  font-family: 'Short Stack', cursive;
+  margin: 25px;
 }
