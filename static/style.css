@@ -1,5 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Short+Stack&display=swap');
+
 body {
   font-family: 'Short Stack', cursive;
   margin: 25px;
 }
+
+.flex-center {
+    width: 100%;
+    align-items: center;/*These two properties center vetically*/
+    height: 25vh;/*These two properties center vetically*/
+    display: flex;/*This is the attribute that separates into columns*/
+    justify-content: center;
+    text-align: center;
+    position: relative;
+}
+
+.spaceOut {
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
