@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Roguelike</title>
+    <link rel="stylesheet" href="static/style.css"/>
+    <link rel="stylesheet" href="static/doodle/doodle.css"/>
+    <script type = "text/javascript" src = "scripts/functions.js" ></script>
+</head>
+<body class="doodle" style="margin:0px auto; width:80%">
+    <header role = "banner">
+        <h1 style="font-size: 50px"><b>Roguelike</b></h1>
+    </header>
+    <br>
+    <div>
+        <div class="two_column doodle-border">
+            <h3><b>Description:</b></h3>
+            <div>
+                This is a project that I worked on for a couple of months. It is a roguelike inspired by one of my favorite
+                games; borderlands. While the game is not finished all the weapons that you can find are randomly generated
+                consisting of multiple wepon parts. Currently the game has one boss one stage and a couple of different enemies.
+                I want to continue development of this game in the future.
+            </div>
+            <h3>Stats</h3>
+            <div>
+                - Language: Python 3<br>
+                - Main library: Pygame 2.0<br>
+                - State: Under construction<br>
+                - Start date: 29 Jan 2020<br>
+                - Wanted features: more stages, more bosses, more weapons<br>
+                <br>
+            </div>
+        </div>
+        <div class="two_column" style="text-align:center">
+          <img id="rogueImages" src="data/roguelike0.png" width="500" height="500" data-nr=0>
+          <br>
+          <button id="prevButton" onclick="nextImage(rogueImages, -1, 4);">Previous</button>
+          <button id="nextButton" onclick="nextImage(rogueImages, 1, 4);">Next</button>
+        </div>
+        <br>
+    </div>
+    <br>
+    <a href="index.html" class="doodle-border">Back</a>
+</body>
+</html>
