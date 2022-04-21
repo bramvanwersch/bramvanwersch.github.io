@@ -3,20 +3,54 @@
 <html>
    <head>
        <meta charset="UTF-8">
-       <title>bvw</title>
-       <link rel="stylesheet" href="static/style.css"/>
+       <title>Bram van Wersch</title>
        <link rel="stylesheet" href="static/doodle/doodle.css"/>
+       <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+       <link rel="stylesheet" href="static/style.css"/>
    </head>
-   <body class="doodle">
-      <header role = "banner">
-         <h1>Welcome to my website</h1>
+   <body class="doodle" style="margin:0px auto; width:70%;">
+      <header role = "banner" style="margin-bottom:25px;">
+         <h1 class="main_title">Welcome</h1>
       </header>
-     <section>
-        <p class="doodle-border">Lorem ipsum gipsum and some more text as you do sometimes writw if you feel like it</p>
-         <button type="button">Click Me!</button>
-     </section>
-     <br>
-      <h3>Some of the more visual pleasing projects I worked on over the years</h3>
+        <div class="container-fluid doodle-border" style="background-color:#D3D3D3; padding:20px;">
+            <div class="two_column_imbalanced1">
+                <div class="two_column" style="padding-right:15px;">
+                    Hey, my name is Bram. I am a 25 year old that just finished his master in Bioinformatics at Wageningen
+                    university. I started working at Erasmus MC at the genetical identification department as a
+                    computational biologist as of November 2021. I do a lot of different projects mainly focussed on the
+                    Y-chromosome. I am passionate about designing large extendable and clear software projects.
+                    <br>
+                    I started my programming journey in Python and from there I continued learning new programming languages.
+                    The latest languages I have been trying are HTML, css and javascript (while coding this website).
+                </div>
+                <div class="two_column" style="padding-left:15px;">
+                    Programming languages ordered by proficiency:<br>
+                    - Python<br>
+                    - Java<br>
+                    - R<br>
+                    - C++<br>
+                    - C<br>
+                    - Bash<br>
+                    - C#<br>
+                    - HTML (I know)<br>
+                    - CSS<br>
+                    - Javascript<br>
+                </div>
+            </div>
+            <div class="two_column_imbalanced2" style="text-align:center">
+                <img id="face" src="data/face.jpg" width="250" height="325" style="margin-bottom:10px">
+                <div class="container-fluid" style="text-align: center;">
+                    <a class="button doodle-border" href="resume.html">Resume</a>
+                    <a class="button doodle-border" href="mailto:bramvanwersch@live.nl">Contact me</a>
+                </div>
+            </div>
+            <br>
+            <br>
+        </div>
+      <h2 style="margin-top:50px;">Free time projects</h2>
+      <div style="margin-bottom:50px">
+          Click on any of the projects below to get more details
+      </div>
       <section class="flex-center">
           <div class="spaceOut">
               <a href="machine_mining.html">Machine mining</a>
@@ -47,12 +81,8 @@
               <br />
           </div>
       </section>
+   <footer style="margin-top:50px;">
 
-      <footer>
-         <p class="value">Check out this cool website <a href = "https://google.com/">hmmmmmm</a></p>
-      </footer>
-
+   </footer>
    </body>
-
-
 </html>

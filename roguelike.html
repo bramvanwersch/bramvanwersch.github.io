@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Roguelike</title>
-    <link rel="stylesheet" href="static/style.css"/>
     <link rel="stylesheet" href="static/doodle/doodle.css"/>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="static/style.css"/>
     <script type = "text/javascript" src = "scripts/functions.js" ></script>
 </head>
 <body class="doodle" style="margin:0px auto; width:80%">
     <header role = "banner">
-        <h1 style="font-size: 50px"><b>Roguelike</b></h1>
+        <h1 class="main_title"><b>Roguelike</b></h1>
     </header>
     <br>
     <div>
-        <div class="two_column doodle-border">
+        <div class="two_column doodle-border" style="padding-bottom:25px; padding-left:25px; padding-right:25px;">
             <h3><b>Description:</b></h3>
             <div>
                 This is a project that I worked on for a couple of months. It is a roguelike inspired by one of my favorite
@@ -28,18 +29,21 @@
                 - State: Under construction<br>
                 - Start date: 29 Jan 2020<br>
                 - Wanted features: more stages, more bosses, more weapons<br>
+                - GitHub page: <a href="https://github.com/bramvanwersch/rogueLike">github.com/bramvanwersch/rogueLike</a>
                 <br>
             </div>
         </div>
         <div class="two_column" style="text-align:center">
           <img id="rogueImages" src="data/roguelike0.png" width="500" height="500" data-nr=0>
           <br>
-          <button id="prevButton" onclick="nextImage(rogueImages, -1, 4);">Previous</button>
-          <button id="nextButton" onclick="nextImage(rogueImages, 1, 4);">Next</button>
+          <button onclick="nextImage(rogueImages, -1, 4);">Previous</button>
+          <button onclick="nextImage(rogueImages, 1, 4);">Next</button>
         </div>
         <br>
     </div>
     <br>
-    <a href="index.html" class="doodle-border">Back</a>
+    <footer style="margin-top:50px;">
+        <a class="doodle-border button" href="index.html" >Back</a>
+    </footer>
 </body>
 </html>
