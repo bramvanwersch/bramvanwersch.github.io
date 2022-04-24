@@ -6,14 +6,47 @@
     <link rel="stylesheet" href="static/doodle/doodle.css"/>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="static/style.css"/>
+    <script type = "text/javascript" src = "scripts/functions.js" ></script>
 </head>
 <body class="doodle">
     <header role = "banner">
-        <h1 style="font-size: 50px"><b>Evolution Simulator</b></h1>
+        <h1 class="main_title"><b>Evolution Simulator</b></h1>
     </header>
-    <div>TBD</div>
-    <footer style="margin-top:50px;">
-        <a class="doodle-border button" href="index.html" >Back</a>
+    <br>
+    <div class="container-fluid">
+        <div class="two_column doodle-border" style="padding-bottom:25px; padding-left:25px; padding-right:25px;">
+            <h3><b>Description:</b></h3>
+            <div>
+                This is my first larger programming project that I have tracked with GitHub. It aims to simulate evolution
+                of 3 groups of species, herbivores, omnivores and carnivores. There are a number of traits that these
+                species have that can evolve. These traits are backed up by actual genomes and DNA and change in a (somewhat)
+                similar fassion as reality. For this implementation however there are so called 'optimal' genes that help
+                define how well the current version of the gene of a species functions compared to the maximal value. This
+                also means that there is no True evolution since there is a set standard that thing evolve towards as opposed
+                to the environment determining the most favorable gene.
+            </div>
+            <h3><b>Stats:</b></h3>
+            <div>
+                - Language: Java<br>
+                - Main library: base<br>
+                - State: Sort of finished but not very balanced<br>
+                - Start date: 12 June 2020<br>
+                - Wanted features: Better balancing of species<br>
+                - GitHub page: <a href="https://github.com/bramvanwersch/Evolution-Simulator">github.com/bramvanwersch/Evolution-Simulator</a>
+                <br>
+            </div>
+        </div>
+        <div class="two_column" style="text-align:center">
+          <img id="evoImages" src="data/EvolutionSimulation0.png" width="600" height="600" data-nr=0>
+          <br>
+          <button onclick="nextImage(evoImages, -1, 3, 'EvolutionSimulation');">Previous</button>
+          <button onclick="nextImage(evoImages, 1, 3, 'EvolutionSimulation');">Next</button>
+        </div>
+        <br>
+    </div>
+    <br>
+    <footer class="standard_footer">
+        <a class="doodle-border button" href="index.html">Back</a>
     </footer>
 </body>
 </html>
