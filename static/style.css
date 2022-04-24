@@ -6,7 +6,7 @@ body {
     text-align: center;
 }
 
-.flex-center {
+.flex_center {
     width: 100%;
     align-items: center;
     display: flex;
@@ -38,7 +38,7 @@ body {
     float: left;
     margin:0;
     width:30%;
-    text-align: left;
+    text-align: center;
 }
 
 .main_title {

@@ -6,12 +6,46 @@
     <link rel="stylesheet" href="static/doodle/doodle.css"/>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="static/style.css"/>
+    <script type = "text/javascript" src = "scripts/functions.js" ></script>
 </head>
-<body class="doodle">
+<body class="doodle" style="margin:0px auto; width:80%">
     <header role = "banner">
-        <h1 style="font-size: 50px"><b>Machine Mining</b></h1>
+        <h1 class="main_title"><b>Machine Mining</b></h1>
     </header>
-    <div>TBD</div>
+    <br>
+    <div class="container-fluid">
+        <div class="two_column doodle-border" style="padding-bottom:25px; padding-left:25px; padding-right:25px;">
+            <h3><b>Description:</b></h3>
+            <div>
+                This is my largest project that I have madeso far. It is a game where you command a mining robot to gather
+                resources to build machines to gather more resources. It is very much under construction and is mainly a
+                huge learning process for me. From building a massive application and keeping the overview to designing
+                my own interfaces using pygame, map generation and saving and loading systems. This project was a lot of
+                fun to make but has become hard to maintain due to the lack of tests and constant bugs that appear seaminlgy
+                out of nowhere. The biggest issue however is the engine, were pygame and CPU accelerated graphics become
+                limited even for a simple 2D game like this because of the number of things that need redrawing. Tldr:
+                likely not ever going to be finished but always cherished.
+            </div>
+            <h3><b>Stats:</b></h3>
+            <div>
+                - Language: Python 3<br>
+                - Main library: Pygame 2.0<br>
+                - State: Under construction and likely never to be finished<br>
+                - Start date: 12 June 2020<br>
+                - Wanted features: An end goal, polishing, programmable machines and a lot of bugfixing<br>
+                - GitHub page: <a href="https://github.com/bramvanwersch/Machine_mining">github.com/bramvanwersch/Machine_mining</a>
+                <br>
+            </div>
+        </div>
+        <div class="two_column" style="text-align:center">
+          <img id="machineImages" src="data/MachineMining0.png" width="600" height="600" data-nr=0>
+          <br>
+          <button onclick="nextImage(machineImages, -1, 5, 'MachineMining');">Previous</button>
+          <button onclick="nextImage(machineImages, 1, 5, 'MachineMining');">Next</button>
+        </div>
+        <br>
+    </div>
+    <br>
     <footer style="margin-top:50px;">
         <a class="doodle-border button" href="index.html" >Back</a>
     </footer>
