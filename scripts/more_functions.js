@@ -1,17 +1,24 @@
+
+const WORLD_HEIGHT = 800;
+
 // CLASSES
 
-class TwoDVector{
+class Vector2{
     constructor(x, y){
         this.x = x;
         this.y = y;
     }
 
     add(otherVector){
-        return new Vector(this.x + otherVector.x, this.y + otherVector.y);
+        return new Vector2(this.x + otherVector.x, this.y + otherVector.y);
     }
 
     substract(otherVector){
-        return new Vector(this.x - otherVector.x, this.y - otherVector.y);
+        return new Vector2(this.x - otherVector.x, this.y - otherVector.y);
+    }
+
+    multiply(value){
+        return new Vector2(this.x * value, this.y * value);
     }
 }
 
@@ -57,7 +64,7 @@ class Rectangle{
     }
 
     get center(){
-        return new Vector(this.xcoord + 0.5 * this.width, this.ycoord + 0.5 * this.height);
+        return new Vector2(this.xcoord + 0.5 * this.width, this.ycoord + 0.5 * this.height);
     }
 
     collidesWith(rect){
@@ -74,6 +81,11 @@ class Rectangle{
             return false;
         }
         return true;
+    }
+
+    move(vector){
+        this.xcoord += vector.x;
+        this.ycoord += vector.y;
     }
 
 }
@@ -152,7 +164,7 @@ class MovableGameObject extends GameObject{
 
     calcGpe() {
         // because pixels divide
-        return this.mass * (9.8 / 1000000) * ((canvas.height - this.rect.height) - (this.rect.ycoord / 32));  // last 32 is a smoothing parameter
+        return this.mass * (9.8 / 1000000) * ((WORLD_HEIGHT - this.rect.height) - (this.rect.ycoord / 32));  // last 32 is a smoothing parameter
     }
 
 }
@@ -173,6 +185,8 @@ const PLATFORMS = [new GameObject(0, 200, 500, 10, 100),
                    new GameObject(500, 190, 50, 250, 100),
                    new GameObject(0, 150, 500, 10, 100)]
 
+let camera = new Vector2(0, 0);
+
 
 function main(){
     // loop function
@@ -180,6 +194,7 @@ function main(){
     // do this for all moving objects later
     PLAYER.reset();
     applyGravity(PLAYER);
+    updateCamera();
     draw();
     requestAnimationFrame(main);
 }
@@ -242,18 +257,27 @@ function checkGameObjectCollission(obj){
 }
 
 
+function updateCamera(){
+    let x = canvas.width / 2 - PLAYER.rect.center.x;
+    let y = canvas.height / 2 - PLAYER.rect.center.y;
+    camera = camera.add(new Vector2(x, y).substract(camera));
+}
+
 
 // drawing functions
 function draw(){
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
     context.clearRect(0, 0, canvas.width, canvas.height);
-    drawPLATFORMS();
+    drawPlatforms();
     drawPlayer();
 }
 
-function drawPLATFORMS(){
+function drawPlatforms(){
 // draw all the PLATFORMS
     context.beginPath();
     for (let i = 0; i < PLATFORMS.length; i++){
+        PLATFORMS[i].rect.move(camera);
         context.rect(PLATFORMS[i].rect.xcoord, PLATFORMS[i].rect.ycoord, PLATFORMS[i].rect.width, PLATFORMS[i].rect.height)
     }
     context.stroke();
@@ -262,6 +286,7 @@ function drawPLATFORMS(){
 function drawPlayer(){
 // draw PLAYER
     context.fillStyle = "red";
+    PLAYER.rect.move(camera);
     context.fillRect(PLAYER.rect.xcoord, PLAYER.rect.ycoord, PLAYER.rect.width, PLAYER.rect.height);
 }
 
