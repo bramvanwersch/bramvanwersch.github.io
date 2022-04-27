@@ -1,7 +1,4 @@
-
-const canvas = document.getElementById("canvas");
-const context = canvas.getContext("2d");
-
+// CLASSES
 
 class TwoDVector{
     constructor(x, y){
@@ -85,8 +82,6 @@ class GameObject{
     constructor(x, y, w, h, mass){
         this.rect = new Rectangle(x, y, w, h);
         this.mass = mass;
-        this.yke = 0;
-        this.gpe = 0;
     }
 
     collideWithObject(obj){
@@ -98,28 +93,82 @@ class GameObject{
         switch (index){
         case 0:
             this.rect.bottom = obj.rect.top;
-            break;
+            return 0;
         case 1:
             this.rect.rigth = obj.rect.left;
-            break;
+            return 1;
         case 2:
             this.rect.top = obj.rect.bottom;
-            break;
+            return 2;
         case 3:
             this.rect.left = obj.rect.rigth;
-            break;
+            return 3;
         }
     }
 }
 
 
-const player = new GameObject(100, 160, 32, 32, 64);
+class MovableGameObject extends GameObject{
+    // a game object that can move and is not a static surrounding
+    constructor(x, y, w, h, mass){
+        super(x, y, w, h, mass);
+        this.yke = 0;  // y kinetic energy
+        this.gpe = 0;  // gravitational potential energy
+        // adjacent in order of bottom, left, top, rigth
+        this.objectAdjacentDirections = [false, false, false, false];
+    }
 
-const DEFAULT_DOWN = -1.0;
+    reset(){
+        // reset certain values for the next frame
+        this.objectAdjacentDirections = [false, false, false, false];
+    }
+
+    handleBottemAdjacent(){
+        this.yke = 0;
+    }
+
+    handleTopAdjacent(){
+        this.yke = -0.5;
+    }
+
+    handleLeftAdjacent(){
+        // slide along the wall
+        if (!this.objectAdjacentDirections[0]){
+            this.yke = SLIDE_SPEED;
+        }
+    }
+
+    handleRigthAdjacent(){
+        // slide along the wall
+        if (!this.objectAdjacentDirections[0]){
+            this.yke = SLIDE_SPEED;
+        }
+    }
+
+    handleNoAdjacent(){
+        this.yke -= this.gpe;
+        this.gpe = this.calcGpe();
+    }
+
+    calcGpe() {
+        // because pixels divide
+        return this.mass * (9.8 / 1000000) * ((canvas.height - this.rect.height) - (this.rect.ycoord / 32));  // last 32 is a smoothing parameter
+    }
+
+}
+
+// CONSTANTS
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
+
+// speed of sliding down walls
+const SLIDE_SPEED = -1.5;
 
 let keysDown = {};
 
-const platforms = [new GameObject(0, 200, 500, 10, 100),
+const PLAYER = new MovableGameObject(100, 160, 32, 32, 64);
+
+const PLATFORMS = [new GameObject(0, 200, 500, 10, 100),
                    new GameObject(150, 500, 500, 10, 100),
                    new GameObject(500, 190, 50, 250, 100),
                    new GameObject(0, 150, 500, 10, 100)]
@@ -128,7 +177,9 @@ const platforms = [new GameObject(0, 200, 500, 10, 100),
 function main(){
     // loop function
     processInput();
-    applyGravity(player);
+    // do this for all moving objects later
+    PLAYER.reset();
+    applyGravity(PLAYER);
     draw();
     requestAnimationFrame(main);
 }
@@ -137,16 +188,16 @@ function main(){
 function processInput(){
     // A
     if (65 in keysDown){
-        player.rect.xcoord -= 3;
+        PLAYER.rect.xcoord -= 3;
     }
     // D
     if (68 in keysDown){
-        player.rect.xcoord += 3;
+        PLAYER.rect.xcoord += 3;
     }
     // W
     if (87 in keysDown){
-        if (player.yke == DEFAULT_DOWN){
-            player.yke = 8;
+        if (PLAYER.yke == 0){
+            PLAYER.yke = 8;
         }
     }
 }
@@ -154,32 +205,40 @@ function processInput(){
 // apply gravity
 function applyGravity(obj){
     obj.rect.ycoord -= obj.yke;
-    if (checkPlatformCollission(obj)){
-        obj.yke = DEFAULT_DOWN;
-        obj.gpe = calcGPE(obj);
-    }
-    else{
-        obj.yke -= obj.gpe;
-        obj.gpe = calcGPE(obj);
-    }
-}
-
-function calcGPE(obj) {
-    // because pixels divide
-    return obj.mass * (9.8 / 1000000) * ((canvas.height - obj.rect.height) - (obj.rect.ycoord / 32));  // last 32 is a smoothing parameter
-}
-
-
-function checkPlatformCollission(obj){
-    // check and correct for collision. return a new yke
+    checkGameObjectCollission(obj);
     let hasCollided = false;
-    for (let i = 0; i < platforms.length; i++){
-        if (obj.rect.collidesWith(platforms[i].rect)){
-            obj.collideWithObject(platforms[i]);
+    for (let index = 0; index < 4; index++){
+        if (obj.objectAdjacentDirections[index]){
             hasCollided = true;
+            switch (index){
+            case 0:
+                obj.handleBottemAdjacent();
+                break;
+            case 1:
+                obj.handleLeftAdjacent();
+                break;
+            case 2:
+                obj.handleTopAdjacent();
+                break;
+            case 3:
+                obj.handleRigthAdjacent();
+                break;
+            }
         }
     }
-    return hasCollided;
+    if (!hasCollided){
+        obj.handleNoAdjacent();
+    }
+}
+
+function checkGameObjectCollission(obj){
+    // check for collission and set the adjacent sides when colliging
+    for (let i = 0; i < PLATFORMS.length; i++){
+        if (obj.rect.collidesWith(PLATFORMS[i].rect)){
+            let collidingDirection = obj.collideWithObject(PLATFORMS[i]);
+            PLAYER.objectAdjacentDirections[collidingDirection] = true;
+        }
+    }
 }
 
 
@@ -187,23 +246,23 @@ function checkPlatformCollission(obj){
 // drawing functions
 function draw(){
     context.clearRect(0, 0, canvas.width, canvas.height);
-    drawPlatforms();
+    drawPLATFORMS();
     drawPlayer();
 }
 
-function drawPlatforms(){
-// draw all the platforms
+function drawPLATFORMS(){
+// draw all the PLATFORMS
     context.beginPath();
-    for (let i = 0; i < platforms.length; i++){
-        context.rect(platforms[i].rect.xcoord, platforms[i].rect.ycoord, platforms[i].rect.width, platforms[i].rect.height)
+    for (let i = 0; i < PLATFORMS.length; i++){
+        context.rect(PLATFORMS[i].rect.xcoord, PLATFORMS[i].rect.ycoord, PLATFORMS[i].rect.width, PLATFORMS[i].rect.height)
     }
     context.stroke();
 }
 
 function drawPlayer(){
-// draw player
+// draw PLAYER
     context.fillStyle = "red";
-    context.fillRect(player.rect.xcoord, player.rect.ycoord, player.rect.width, player.rect.height);
+    context.fillRect(PLAYER.rect.xcoord, PLAYER.rect.ycoord, PLAYER.rect.width, PLAYER.rect.height);
 }
 
 
