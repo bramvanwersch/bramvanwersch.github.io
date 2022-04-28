@@ -1,5 +1,7 @@
 
 const WORLD_HEIGHT = 800;
+const MAX_SPEED = 15.0;
+var ID_COUNT = 0;
 
 // CLASSES
 
@@ -88,12 +90,31 @@ class Rectangle{
         this.ycoord += vector.y;
     }
 
+    equals(otherRect){
+        if (otherRect.xcoord != this.xcoord){
+            return false;
+        }
+        if (otherRect.ycoord != this.ycoord){
+            return false;
+        }
+        if (otherRect.width != this.width){
+            return false;
+        }
+        if (otherRect.height != this.height){
+            return false;
+        }
+        return true;
+    }
+
 }
 
 class GameObject{
-    constructor(x, y, w, h, mass){
+    constructor(x, y, w, h, mass, material){
         this.rect = new Rectangle(x, y, w, h);
         this.mass = mass;
+        this.material = material;
+        this.id = ID_COUNT;
+        ID_COUNT += 1;
     }
 
     collideWithObject(obj){
@@ -105,18 +126,26 @@ class GameObject{
         switch (index){
         case 0:
             this.rect.bottom = obj.rect.top;
-            return 0;
+            return [0, obj];
         case 1:
             this.rect.rigth = obj.rect.left;
-            return 1;
+            return [1, obj];
         case 2:
             this.rect.top = obj.rect.bottom;
-            return 2;
+            return [2, obj];
         case 3:
             this.rect.left = obj.rect.rigth;
-            return 3;
+            return [3, obj];
         }
     }
+
+    equals(otherObject){
+        if (otherObject == null){
+            return false;
+        }
+        return this.rect.equals(otherObject.rect);
+    }
+
 }
 
 
@@ -125,14 +154,60 @@ class MovableGameObject extends GameObject{
     constructor(x, y, w, h, mass){
         super(x, y, w, h, mass);
         this.yke = 0;  // y kinetic energy
+        this.xke = 0;
         this.gpe = 0;  // gravitational potential energy
         // adjacent in order of bottom, left, top, rigth
-        this.objectAdjacentDirections = [false, false, false, false];
+        this.objectAdjacentPlatforms = [null, null, null, null];
+        this.lastTouchedPlatform = null;
     }
 
     reset(){
         // reset certain values for the next frame
-        this.objectAdjacentDirections = [false, false, false, false];
+        this.objectAdjacentPlatforms = [null, null, null, null];
+        this.lastTouchedPlatform = null;
+    }
+
+    move(){
+        // move based on kinetic energy
+        this.rect.ycoord -= this.yke;
+        this.rect.xcoord += this.xke;
+
+        // check for collision and adjust per side
+        checkGameObjectCollission(this);
+        let hasCollided = false;
+        for (let index = 0; index < 4; index++){
+            if (this.objectAdjacentPlatforms[index] != null){
+                hasCollided = true;
+                switch (index){
+                case 0:
+                    this.handleBottemAdjacent();
+                    break;
+                case 1:
+                    this.handleLeftAdjacent();
+                    break;
+                case 2:
+                    this.handleTopAdjacent();
+                    break;
+                case 3:
+                    this.handleRigthAdjacent();
+                    break;
+                }
+            }
+        }
+
+        // adjust y kinetic energy
+        this.yke -= this.gpe;
+        this.gpe = this.calcGpe();
+
+        // adjust x kinetic energy
+        let resistance = 0;
+        if (this.objectAdjacentPlatforms[0] == null){
+            resistance = MATERIALS["air"].resistance;
+        }
+        else{
+            resistance = this.objectAdjacentPlatforms[0].material.resistance;
+        }
+        this.xke *= resistance;
     }
 
     handleBottemAdjacent(){
@@ -145,21 +220,18 @@ class MovableGameObject extends GameObject{
 
     handleLeftAdjacent(){
         // slide along the wall
-        if (!this.objectAdjacentDirections[0]){
-            this.yke = SLIDE_SPEED;
+        this.xke = 0;
+        if (this.objectAdjacentPlatforms[0] == null){
+            this.yke = this.objectAdjacentPlatforms[1].material.slideSpeed;
         }
     }
 
     handleRigthAdjacent(){
         // slide along the wall
-        if (!this.objectAdjacentDirections[0]){
-            this.yke = SLIDE_SPEED;
+        this.xke = 0;
+        if (this.objectAdjacentPlatforms[0] == null){
+            this.yke = this.objectAdjacentPlatforms[3].material.slideSpeed;
         }
-    }
-
-    handleNoAdjacent(){
-        this.yke -= this.gpe;
-        this.gpe = this.calcGpe();
     }
 
     calcGpe() {
@@ -169,21 +241,33 @@ class MovableGameObject extends GameObject{
 
 }
 
+class Material{
+    constructor(slideSpeed, resistance){
+        this.slideSpeed = slideSpeed;
+        this.resistance = resistance;
+    }
+}
+
 // CONSTANTS
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
-// speed of sliding down walls
-const SLIDE_SPEED = -1.5;
+MATERIALS = {
+    "air": new Material(0, 0.9),
+    "wall": new Material(-1.5, 0.7),
+    "flesh": new Material(-2, 0.3)
+}
 
 let keysDown = {};
 
-const PLAYER = new MovableGameObject(100, 160, 32, 32, 64);
+const PLAYER = new MovableGameObject(100, 160, 32, 32, 64, MATERIALS["flesh"]);
 
-const PLATFORMS = [new GameObject(0, 200, 500, 10, 100),
-                   new GameObject(150, 500, 500, 10, 100),
-                   new GameObject(500, 190, 50, 250, 100),
-                   new GameObject(0, 150, 500, 10, 100)]
+const PLATFORMS = [new GameObject(0, 200, 500, 50, 100, MATERIALS["wall"]),
+                   new GameObject(150, 500, 800, 50, 100, MATERIALS["wall"]),
+                   new GameObject(500, 190, 50, 250, 100, MATERIALS["wall"]),
+                   new GameObject(700, 190, 50, 250, 100, MATERIALS["wall"]),
+                   new GameObject(50, 100, 500, 50, 100, MATERIALS["wall"]),
+                   new GameObject(-800, 150, 600, 100, 100, MATERIALS["wall"])]
 
 let camera = new Vector2(0, 0);
 
@@ -193,7 +277,7 @@ function main(){
     processInput();
     // do this for all moving objects later
     PLAYER.reset();
-    applyGravity(PLAYER);
+    PLAYER.move();
     updateCamera();
     draw();
     requestAnimationFrame(main);
@@ -203,46 +287,36 @@ function main(){
 function processInput(){
     // A
     if (65 in keysDown){
-        PLAYER.rect.xcoord -= 3;
+        if (PLAYER.objectAdjacentPlatforms[0] != null){
+            PLAYER.xke -= 3;
+        }
+        else{
+            PLAYER.xke -= 0.75;
+        }
+
     }
     // D
     if (68 in keysDown){
-        PLAYER.rect.xcoord += 3;
+        if (PLAYER.objectAdjacentPlatforms[0] != null){
+            PLAYER.xke += 3;
+        }
+        else{
+            PLAYER.xke += 0.75;
+        }
     }
     // W
     if (87 in keysDown){
-        if (PLAYER.yke == 0){
+        if (PLAYER.objectAdjacentPlatforms[0] != null){
             PLAYER.yke = 8;
         }
-    }
-}
-
-// apply gravity
-function applyGravity(obj){
-    obj.rect.ycoord -= obj.yke;
-    checkGameObjectCollission(obj);
-    let hasCollided = false;
-    for (let index = 0; index < 4; index++){
-        if (obj.objectAdjacentDirections[index]){
-            hasCollided = true;
-            switch (index){
-            case 0:
-                obj.handleBottemAdjacent();
-                break;
-            case 1:
-                obj.handleLeftAdjacent();
-                break;
-            case 2:
-                obj.handleTopAdjacent();
-                break;
-            case 3:
-                obj.handleRigthAdjacent();
-                break;
-            }
+        else if (PLAYER.objectAdjacentPlatforms[1] != null && !PLAYER.objectAdjacentPlatforms[1].equals(PLAYER.lastTouchedPlatform)){
+            PLAYER.yke = 8;
+            PLAYER.xke = -10;
         }
-    }
-    if (!hasCollided){
-        obj.handleNoAdjacent();
+        else if (PLAYER.objectAdjacentPlatforms[3] != null && !PLAYER.objectAdjacentPlatforms[3].equals(PLAYER.lastTouchedPlatform)){
+            PLAYER.yke = 8;
+            PLAYER.xke = 10;
+        }
     }
 }
 
@@ -250,8 +324,9 @@ function checkGameObjectCollission(obj){
     // check for collission and set the adjacent sides when colliging
     for (let i = 0; i < PLATFORMS.length; i++){
         if (obj.rect.collidesWith(PLATFORMS[i].rect)){
-            let collidingDirection = obj.collideWithObject(PLATFORMS[i]);
-            PLAYER.objectAdjacentDirections[collidingDirection] = true;
+            let collisionValues = obj.collideWithObject(PLATFORMS[i]);
+            obj.objectAdjacentPlatforms[collisionValues[0]] = collisionValues[1];
+            obj.lastTouchedPlatform = collisionValues[1];
         }
     }
 }
