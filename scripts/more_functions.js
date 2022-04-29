@@ -158,13 +158,12 @@ class MovableGameObject extends GameObject{
         this.gpe = 0;  // gravitational potential energy
         // adjacent in order of bottom, left, top, rigth
         this.objectAdjacentPlatforms = [null, null, null, null];
-        this.lastTouchedPlatform = null;
+        this.lastJumpedPlatform = null;
     }
 
     reset(){
         // reset certain values for the next frame
         this.objectAdjacentPlatforms = [null, null, null, null];
-        this.lastTouchedPlatform = null;
     }
 
     move(){
@@ -308,14 +307,17 @@ function processInput(){
     if (87 in keysDown){
         if (PLAYER.objectAdjacentPlatforms[0] != null){
             PLAYER.yke = 8;
+            PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[0];
         }
-        else if (PLAYER.objectAdjacentPlatforms[1] != null && !PLAYER.objectAdjacentPlatforms[1].equals(PLAYER.lastTouchedPlatform)){
+        else if (PLAYER.objectAdjacentPlatforms[1] != null && !PLAYER.objectAdjacentPlatforms[1].equals(PLAYER.lastJumpedPlatform)){
             PLAYER.yke = 8;
-            PLAYER.xke = -10;
+            PLAYER.xke = -7;
+            PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[1];
         }
-        else if (PLAYER.objectAdjacentPlatforms[3] != null && !PLAYER.objectAdjacentPlatforms[3].equals(PLAYER.lastTouchedPlatform)){
+        else if (PLAYER.objectAdjacentPlatforms[3] != null && !PLAYER.objectAdjacentPlatforms[3].equals(PLAYER.lastJumpedPlatform)){
             PLAYER.yke = 8;
-            PLAYER.xke = 10;
+            PLAYER.xke = 7;
+            PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[3];
         }
     }
 }
@@ -326,7 +328,6 @@ function checkGameObjectCollission(obj){
         if (obj.rect.collidesWith(PLATFORMS[i].rect)){
             let collisionValues = obj.collideWithObject(PLATFORMS[i]);
             obj.objectAdjacentPlatforms[collisionValues[0]] = collisionValues[1];
-            obj.lastTouchedPlatform = collisionValues[1];
         }
     }
 }
