@@ -1,10 +1,27 @@
 
+
+// TODO
+// 1. add textures
+// 2. add world kill box
+// 3. add camera class and load unload properly
+// 4. add levels and or generate them
+// 5. add collectibles --> coins
+// 6. restart game on death
+
+
+
+// textures
+var CLOUDS_IMAGE = new Image();
+CLOUDS_IMAGE.src = "data/assets/clouds.png";
+
+var MOUNTAIN_IMAGE = new Image();
+MOUNTAIN_IMAGE.src = "data/assets/mountains.png";
+
+var TILES_IMAGE = new Image();
+TILES_IMAGE.src = "data/assets/tileset.png";
+
 const WORLD_HEIGHT = 800;
-const MAX_SPEED = 15.0;
-var ID_COUNT = 0;
 
-
-console.log(('b' + 'a' + + 'a' + 'a').toLowerCase());
 
 // CLASSES
 
@@ -116,8 +133,6 @@ class GameObject{
         this.rect = new Rectangle(x, y, w, h);
         this.mass = mass;
         this.material = material;
-        this.id = ID_COUNT;
-        ID_COUNT += 1;
     }
 
     collideWithObject(obj){
@@ -352,19 +367,24 @@ function updateCamera(){
 function draw(){
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    //context.clearRect(0, 0, canvas.width, canvas.height);
+    drawBackground();
     drawPlatforms();
     drawPlayer();
 }
 
+function drawBackground(){
+context.drawImage(CLOUDS_IMAGE, 0, 0, canvas.width, canvas.height / 2);
+    context.drawImage(MOUNTAIN_IMAGE, 0, canvas.height / 2 - 10, canvas.width, canvas.height / 2 + 10);
+}
+
 function drawPlatforms(){
 // draw all the PLATFORMS
-    context.beginPath();
+
     for (let i = 0; i < PLATFORMS.length; i++){
         PLATFORMS[i].rect.move(camera);
-        context.rect(PLATFORMS[i].rect.xcoord, PLATFORMS[i].rect.ycoord, PLATFORMS[i].rect.width, PLATFORMS[i].rect.height)
+        context.fillRect(PLATFORMS[i].rect.xcoord, PLATFORMS[i].rect.ycoord, PLATFORMS[i].rect.width, PLATFORMS[i].rect.height)
     }
-    context.stroke();
 }
 
 function drawPlayer(){
