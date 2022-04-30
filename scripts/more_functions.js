@@ -11,14 +11,12 @@
 
 
 // textures
-var CLOUDS_IMAGE = new Image();
-CLOUDS_IMAGE.src = "data/assets/clouds.png";
 
 var MOUNTAIN_IMAGE = new Image();
-MOUNTAIN_IMAGE.src = "data/assets/mountains.png";
+MOUNTAIN_IMAGE.src = "data/assets/mountains_background.png";
 
 var TILES_IMAGE = new Image();
-TILES_IMAGE.src = "data/assets/tileset.png";
+TILES_IMAGE.src = "data/assets/tiles_spritesheet.png";
 
 const WORLD_HEIGHT = 800;
 
@@ -167,7 +165,64 @@ class GameObject{
 }
 
 
-class MovableGameObject extends GameObject{
+class Platform extends GameObject{
+    // make sure that it is multiple of 50
+    constructor(x, y, w, h, mass, material, tileSet){
+        super(x, y, w, h, mass, material);
+        this.tileSet = tileSet
+    }
+
+    draw(){
+        // make sure that tileset order is the same
+        let maxx = (Math.floor(this.rect.width / 50) - 1) * 50;
+        let maxy = (Math.floor(this.rect.height / 50) - 1) * 50;
+        for (let y = 0; y < this.rect.height; y += 50){
+            for (let x = 0; x < this.rect.width; x += 50){
+                let tileIndex = 0;
+                if (y == 0){
+                    if (y == 0 && y == maxy && x == 0 && x == maxx){
+                        tileIndex = 8;
+                    }
+                    else if (y == maxy && x == 0){
+                        tileIndex = 2;
+                    }
+                    else if (y == maxy && x == maxx){
+                        tileIndex = 5;
+                    }
+                    else if (x == 0 && x == maxx){
+                        tileIndex = 9;
+                    }
+                    else if (x == 0){
+                        tileIndex = 3;
+                    }
+                    else if (x == maxx){
+                        tileIndex = 4;
+                    }
+                    else{
+                        tileIndex = 1;
+                    }
+                }
+                else if (y == maxy){
+                    if (x == 0 && x == maxx){
+                        tileIndex = 10;
+                    }
+                    else if (x == 0){
+                        tileIndex = 6;
+                    }
+                    else if (x == maxx){
+                        tileIndex = 7;
+                    }
+                }
+                let imagePos = this.tileSet.getTilePos(tileIndex);
+                context.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize,
+                                  this.tileSet.tileSize, this.rect.xcoord + x, this.rect.ycoord + y, 51, 51)
+            }
+        }
+    }
+}
+
+
+class Player extends GameObject{
     // a game object that can move and is not a static surrounding
     constructor(x, y, w, h, mass){
         super(x, y, w, h, mass);
@@ -245,6 +300,21 @@ class Material{
     }
 }
 
+
+class TileSet{
+    constructor(image, tileSize, tilesPerRow){
+        this.image = image;
+        this.tilesPerRow = tilesPerRow;
+        this.tileSize = tileSize;
+    }
+
+    getTilePos(index){
+        let x = index % this.tilesPerRow;
+        let y = Math.floor(index / this.tilesPerRow);
+        return [x * this.tileSize, y * this.tileSize];
+    }
+}
+
 // CONSTANTS
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
@@ -257,14 +327,16 @@ MATERIALS = {
 
 let keysDown = {};
 
-const PLAYER = new MovableGameObject(100, 160, 32, 32, 64, MATERIALS["flesh"]);
+const PLAYER = new Player(100, 160, 32, 32, 64, MATERIALS["flesh"]);
 
-const PLATFORMS = [new GameObject(0, 200, 500, 50, 100, MATERIALS["wall"]),
-                   new GameObject(150, 500, 800, 50, 100, MATERIALS["wall"]),
-                   new GameObject(500, 190, 50, 250, 100, MATERIALS["wall"]),
-                   new GameObject(700, 190, 50, 250, 100, MATERIALS["wall"]),
-                   new GameObject(50, 100, 500, 50, 100, MATERIALS["wall"]),
-                   new GameObject(-800, 150, 600, 100, 100, MATERIALS["wall"])]
+const GRASS_TILE_SET = new TileSet(TILES_IMAGE, 70, 8);
+
+const PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                   new Platform(150, 500, 800, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                   new Platform(500, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                   new Platform(700, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                   new Platform(50, 100, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                   new Platform(-800, 150, 600, 100, 100, MATERIALS["wall"], GRASS_TILE_SET)]
 
 let camera = new Vector2(0, 0);
 
@@ -374,8 +446,7 @@ function draw(){
 }
 
 function drawBackground(){
-context.drawImage(CLOUDS_IMAGE, 0, 0, canvas.width, canvas.height / 2);
-    context.drawImage(MOUNTAIN_IMAGE, 0, canvas.height / 2 - 10, canvas.width, canvas.height / 2 + 10);
+    context.drawImage(MOUNTAIN_IMAGE, 0, 0, canvas.width, canvas.height);
 }
 
 function drawPlatforms(){
@@ -383,7 +454,8 @@ function drawPlatforms(){
 
     for (let i = 0; i < PLATFORMS.length; i++){
         PLATFORMS[i].rect.move(camera);
-        context.fillRect(PLATFORMS[i].rect.xcoord, PLATFORMS[i].rect.ycoord, PLATFORMS[i].rect.width, PLATFORMS[i].rect.height)
+        PLATFORMS[i].draw();
+        //context.fillRect(PLATFORMS[i].rect.xcoord, PLATFORMS[i].rect.ycoord, PLATFORMS[i].rect.width, PLATFORMS[i].rect.height)
     }
 }
 
