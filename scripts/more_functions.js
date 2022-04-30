@@ -1,14 +1,12 @@
 
 
 // TODO
-// 1. add textures
-// 2. add world kill box
+// 1. add player texture
 // 3. add camera class and load unload properly
 // 4. add levels and or generate them
 // 5. add collectibles --> coins
 // 6. restart game on death
-
-
+// 7. add sounds for jumping and picking up coins
 
 // textures
 
@@ -232,6 +230,7 @@ class Player extends GameObject{
         // adjacent in order of bottom, left, top, rigth
         this.objectAdjacentPlatforms = [null, null, null, null];
         this.lastJumpedPlatform = null;
+        this.is_dead = false;
     }
 
     reset(){
@@ -342,13 +341,24 @@ let camera = new Vector2(0, 0);
 
 
 function main(){
-    // loop function
-    processInput();
-    // do this for all moving objects later
-    PLAYER.reset();
-    PLAYER.move();
-    updateCamera();
-    draw();
+    if (!PLAYER.is_dead){
+        // loop function
+        processInput();
+        // do this for all moving objects later
+        PLAYER.reset();
+        PLAYER.move();
+        updateCamera();
+        draw();
+    }
+    else{
+        draw();
+        context.font = "50px Impact";
+        context.fillStyle = "darkred";
+        context.textAlign = "center";
+        context.fillText("Oops you died. Try again (f5)", canvas.width/2, canvas.height/2);
+        // slow down camera
+        camera = camera.multiply(0.9);
+    }
     requestAnimationFrame(main);
 }
 
@@ -418,12 +428,24 @@ function handleCollision(obj){
 }
 
 function checkGameObjectCollission(obj){
-    // check for collission and set the adjacent sides when colliging
+    let minx = 0;
+    let miny = 0;
+    let maxx = 0;
+    let maxy = 0;
+    // check for collission and set the adjacent sides when colliding
     for (let i = 0; i < PLATFORMS.length; i++){
         if (obj.rect.collidesWith(PLATFORMS[i].rect)){
             let collisionValues = obj.collideWithObject(PLATFORMS[i]);
             obj.objectAdjacentPlatforms[collisionValues[0]] = collisionValues[1];
         }
+        minx = Math.min(minx, PLATFORMS[i].rect.left);
+        miny = Math.min(miny, PLATFORMS[i].rect.top);
+        maxx = Math.max(maxx, PLATFORMS[i].rect.rigth);
+        maxy = Math.max(maxy, PLATFORMS[i].rect.bottom);
+    }
+    // if player is to far from platforms KILL
+    if (PLAYER.rect.xcoord < minx - 250 || PLAYER.rect.xcoord > maxx + 250 || PLAYER.rect.ycoord < miny - 250 || PLAYER.rect.ycoord > maxy + 250){
+        PLAYER.is_dead = true;
     }
 }
 
@@ -455,7 +477,6 @@ function drawPlatforms(){
     for (let i = 0; i < PLATFORMS.length; i++){
         PLATFORMS[i].rect.move(camera);
         PLATFORMS[i].draw();
-        //context.fillRect(PLATFORMS[i].rect.xcoord, PLATFORMS[i].rect.ycoord, PLATFORMS[i].rect.width, PLATFORMS[i].rect.height)
     }
 }
 
