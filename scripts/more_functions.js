@@ -2,19 +2,36 @@
 
 // TODO
 // 1. add player texture
-// 3. add camera class and load unload properly
+// 3. load unload properly
 // 4. add levels and or generate them
-// 5. add collectibles --> coins
-// 6. restart game on death
-// 7. add sounds for jumping and picking up coins
 
-// textures
+// loading textures and images
 
-var MOUNTAIN_IMAGE = new Image();
-MOUNTAIN_IMAGE.src = "data/assets/mountains_background.png";
+function loadImage(source){
+    let img = new Image();
+    img.src = "data/assets/images/" + source;
+    return img;
+}
 
-var TILES_IMAGE = new Image();
-TILES_IMAGE.src = "data/assets/tiles_spritesheet.png";
+function loadSound(source){
+    let sound = new Audio("data/assets/sounds/" + source);
+    sound.preload = 'auto';
+    sound.load();
+    return sound;
+}
+
+var MOUNTAIN_IMAGE = loadImage("mountains_background.png");
+var TILES_IMAGE = loadImage("tiles_spritesheet.png");
+var COIN_IMAGES = loadImage("coins.png");
+
+
+// sounds
+var COIN_SOUNDS = [loadSound("coin1.wav"), loadSound("coin2.wav"), loadSound("coin3.wav")];
+var JUMP_SOUND = loadSound("jump.wav");
+JUMP_SOUND.volume = 0.25;
+JUMP_SOUND.playbackRate = 1.5;
+var DEATH_SOUND = loadSound("death.wav");
+
 
 const WORLD_HEIGHT = 800;
 
@@ -167,7 +184,7 @@ class Platform extends GameObject{
     // make sure that it is multiple of 50
     constructor(x, y, w, h, mass, material, tileSet){
         super(x, y, w, h, mass, material);
-        this.tileSet = tileSet
+        this.tileSet = tileSet;
     }
 
     draw(){
@@ -216,6 +233,34 @@ class Platform extends GameObject{
                                   this.tileSet.tileSize, this.rect.xcoord + x, this.rect.ycoord + y, 51, 51)
             }
         }
+    }
+}
+
+const COIN_SIZE = 30;
+const COIN_FRAME_PER_IMAGE = 7;
+
+class Coin extends GameObject{
+    constructor(x, y, tileSet){
+        let size = 50;
+        super(x, y, COIN_SIZE, COIN_SIZE, 5, null);
+        this.tileSet = tileSet;
+        this.framesTilNext = Math.floor(Math.random() * COIN_FRAME_PER_IMAGE);
+        this.frameIndex = 0;
+    }
+
+    draw(){
+        if (this.framesTilNext > 0){
+            this.framesTilNext -= 1;
+        }
+        else{
+            this.framesTilNext = COIN_FRAME_PER_IMAGE;
+            this.frameIndex = (this.frameIndex + 1) % 8;  // hardcoded for now
+        }
+        let imagePos = this.tileSet.getTilePos(this.frameIndex);
+
+        context.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize,
+                          this.tileSet.tileSize, this.rect.xcoord, this.rect.ycoord, COIN_SIZE, COIN_SIZE)
+
     }
 }
 
@@ -270,19 +315,11 @@ class Player extends GameObject{
     }
 
     handleLeftAdjacent(){
-        // slide along the wall
         this.xke = 0;
-        if (this.objectAdjacentPlatforms[0] == null){
-            this.yke = this.objectAdjacentPlatforms[1].material.slideSpeed;
-        }
     }
 
     handleRigthAdjacent(){
-        // slide along the wall
         this.xke = 0;
-        if (this.objectAdjacentPlatforms[0] == null){
-            this.yke = this.objectAdjacentPlatforms[3].material.slideSpeed;
-        }
     }
 
     calcGpe() {
@@ -293,8 +330,7 @@ class Player extends GameObject{
 }
 
 class Material{
-    constructor(slideSpeed, resistance){
-        this.slideSpeed = slideSpeed;
+    constructor(resistance){
         this.resistance = resistance;
     }
 }
@@ -319,9 +355,9 @@ const canvas = document.getElementById("canvas");
 const context = canvas.getContext("2d");
 
 MATERIALS = {
-    "air": new Material(0, 0.9),
-    "wall": new Material(-1.5, 0.8),
-    "flesh": new Material(-2, 0.3)
+    "air": new Material(0.9),
+    "wall": new Material(0.8),
+    "flesh": new Material(0.3)
 }
 
 let keysDown = {};
@@ -336,6 +372,12 @@ const PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_T
                    new Platform(700, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(50, 100, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(-800, 150, 600, 100, 100, MATERIALS["wall"], GRASS_TILE_SET)]
+
+const COIN_TILESET = new TileSet(COIN_IMAGES, 16, 8);
+
+const COINS = [new Coin(0, 0, COIN_TILESET),
+               new Coin(100, 0, COIN_TILESET),
+               new Coin(250, 400, COIN_TILESET)]
 
 let camera = new Vector2(0, 0);
 
@@ -387,16 +429,19 @@ function processInput(){
     if (87 in keysDown){
         if (PLAYER.objectAdjacentPlatforms[0] != null){
             PLAYER.yke = 8;
+            JUMP_SOUND.play();
         }
         else if (PLAYER.objectAdjacentPlatforms[1] != null && !PLAYER.objectAdjacentPlatforms[1].equals(PLAYER.lastJumpedPlatform)){
             PLAYER.yke = 8;
             PLAYER.xke = -7;
             PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[1];
+            JUMP_SOUND.play();
         }
         else if (PLAYER.objectAdjacentPlatforms[3] != null && !PLAYER.objectAdjacentPlatforms[3].equals(PLAYER.lastJumpedPlatform)){
             PLAYER.yke = 8;
             PLAYER.xke = 7;
             PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[3];
+            JUMP_SOUND.play();
         }
     }
 }
@@ -446,6 +491,14 @@ function checkGameObjectCollission(obj){
     // if player is to far from platforms KILL
     if (PLAYER.rect.xcoord < minx - 250 || PLAYER.rect.xcoord > maxx + 250 || PLAYER.rect.ycoord < miny - 250 || PLAYER.rect.ycoord > maxy + 250){
         PLAYER.is_dead = true;
+        DEATH_SOUND.play();
+    }
+    // check coin collision
+    for (let i = COINS.length - 1; i >= 0; i--){
+        if (obj.rect.collidesWith(COINS[i].rect)){
+            COINS.splice(i, 1);
+            COIN_SOUNDS[i].play();
+        }
     }
 }
 
@@ -461,9 +514,9 @@ function updateCamera(){
 function draw(){
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
-    //context.clearRect(0, 0, canvas.width, canvas.height);
     drawBackground();
     drawPlatforms();
+    drawCoins();
     drawPlayer();
 }
 
@@ -480,6 +533,14 @@ function drawPlatforms(){
     }
 }
 
+function drawCoins(){
+    for (let i = 0; i < COINS.length; i++){
+        COINS[i].rect.move(camera);
+        COINS[i].draw();
+        let sound = Math.floor(Math.random() * 3);
+    }
+}
+
 function drawPlayer(){
 // draw PLAYER
     context.fillStyle = "red";
@@ -490,14 +551,14 @@ function drawPlayer(){
 
 // global event listeners
 window.addEventListener("keydown", function(event){
-  keysDown[event.keyCode] = true;
+    keysDown[event.keyCode] = true;
 });
 
 window.addEventListener("keyup", function(event){
-  delete keysDown[event.keyCode];
+    delete keysDown[event.keyCode];
 });
 
 // make sure that the main function is running
 window.onload = function(){
-  main();
+    main();
 }
