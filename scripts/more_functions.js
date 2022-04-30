@@ -3,6 +3,9 @@ const WORLD_HEIGHT = 800;
 const MAX_SPEED = 15.0;
 var ID_COUNT = 0;
 
+
+console.log(('b' + 'a' + + 'a' + 'a').toLowerCase());
+
 // CLASSES
 
 class Vector2{
@@ -171,28 +174,7 @@ class MovableGameObject extends GameObject{
         this.rect.ycoord -= this.yke;
         this.rect.xcoord += this.xke;
 
-        // check for collision and adjust per side
-        checkGameObjectCollission(this);
-        let hasCollided = false;
-        for (let index = 0; index < 4; index++){
-            if (this.objectAdjacentPlatforms[index] != null){
-                hasCollided = true;
-                switch (index){
-                case 0:
-                    this.handleBottemAdjacent();
-                    break;
-                case 1:
-                    this.handleLeftAdjacent();
-                    break;
-                case 2:
-                    this.handleTopAdjacent();
-                    break;
-                case 3:
-                    this.handleRigthAdjacent();
-                    break;
-                }
-            }
-        }
+        handleCollision(this);
 
         // adjust y kinetic energy
         this.yke -= this.gpe;
@@ -211,6 +193,7 @@ class MovableGameObject extends GameObject{
 
     handleBottemAdjacent(){
         this.yke = 0;
+        this.lastJumpedPlatform = null;
     }
 
     handleTopAdjacent(){
@@ -253,7 +236,7 @@ const context = canvas.getContext("2d");
 
 MATERIALS = {
     "air": new Material(0, 0.9),
-    "wall": new Material(-1.5, 0.7),
+    "wall": new Material(-1.5, 0.8),
     "flesh": new Material(-2, 0.3)
 }
 
@@ -287,7 +270,7 @@ function processInput(){
     // A
     if (65 in keysDown){
         if (PLAYER.objectAdjacentPlatforms[0] != null){
-            PLAYER.xke -= 3;
+            PLAYER.xke -= 2;
         }
         else{
             PLAYER.xke -= 0.75;
@@ -297,7 +280,7 @@ function processInput(){
     // D
     if (68 in keysDown){
         if (PLAYER.objectAdjacentPlatforms[0] != null){
-            PLAYER.xke += 3;
+            PLAYER.xke += 2;
         }
         else{
             PLAYER.xke += 0.75;
@@ -307,7 +290,6 @@ function processInput(){
     if (87 in keysDown){
         if (PLAYER.objectAdjacentPlatforms[0] != null){
             PLAYER.yke = 8;
-            PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[0];
         }
         else if (PLAYER.objectAdjacentPlatforms[1] != null && !PLAYER.objectAdjacentPlatforms[1].equals(PLAYER.lastJumpedPlatform)){
             PLAYER.yke = 8;
@@ -318,6 +300,32 @@ function processInput(){
             PLAYER.yke = 8;
             PLAYER.xke = 7;
             PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[3];
+        }
+    }
+}
+
+
+function handleCollision(obj){
+    // check for collision and adjust per side
+    checkGameObjectCollission(obj);
+    let hasCollided = false;
+    for (let index = 0; index < 4; index++){
+        if (obj.objectAdjacentPlatforms[index] != null){
+            hasCollided = true;
+            switch (index){
+            case 0:
+                obj.handleBottemAdjacent();
+                break;
+            case 1:
+                obj.handleLeftAdjacent();
+                break;
+            case 2:
+                obj.handleTopAdjacent();
+                break;
+            case 3:
+                obj.handleRigthAdjacent();
+                break;
+            }
         }
     }
 }
