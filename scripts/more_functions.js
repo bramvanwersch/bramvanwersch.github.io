@@ -36,6 +36,12 @@ var JUMP_SOUND = loadSound("jump.wav");
 JUMP_SOUND.volume = 0.1;
 JUMP_SOUND.playbackRate = 1.5;
 var DEATH_SOUND = loadSound("death.wav");
+var WIN_SOUND = loadSound("win.wav");
+var STEP_SOUND1 = loadSound("step1.wav");
+STEP_SOUND1.volume = 0.1;
+var STEP_SOUND2 = loadSound("step2.wav");
+STEP_SOUND2.volume = 0.1;
+var START_STAGE_SOUND = loadSound("start_stage.wav");
 
 
 const WORLD_HEIGHT = 800;
@@ -305,7 +311,8 @@ class Player extends GameObject{
         this.lastJumpedPlatform = null;
         this.tileSet = tileSet;
         this.rTileSet = reverseTileSet;
-        this.walkAnimation = new Animation(5, [2, 3, 7, 8, 9], false)
+        this.walkAnimation = new Animation(5, [2, 3, 7, 8, 9], false);
+        this.framesTillSound = 20;
     }
 
     draw(){
@@ -320,6 +327,7 @@ class Player extends GameObject{
                 tileSet = this.rTileSet;
             }
         }
+        // in the air
         else if (this.objectAdjacentPlatforms[0] == null){
             if (this.xke > 0){
                 tileIndex = 2;
@@ -329,19 +337,36 @@ class Player extends GameObject{
                 tileSet = this.rTileSet;
             }
         }
+        // walking on platform
         else if (this.xke > 0.5){
             tileIndex = this.walkAnimation.getImageIndex();
+            this.playWalkSound();
         }
         else if (this.xke < -0.5){
             tileIndex = this.walkAnimation.getImageIndex();
             tileIndex = this.tileSet.tilesPerRow * (Math.floor(tileIndex / this.tileSet.tilesPerRow)) +
                         ((this.tileSet.tilesPerRow - 1) -  tileIndex % this.tileSet.tilesPerRow);
             tileSet = this.rTileSet;
+            this.playWalkSound();
+
         }
         let imagePos = tileSet.getTilePos(tileIndex);
         CONTEXT.drawImage(tileSet.image, imagePos[0], imagePos[1], tileSet.tileSize.x,
                           tileSet.tileSize.y, this.rect.xcoord - 10, this.rect.ycoord - 10, this.rect.width + 20,
                           this.rect.height + 10)
+    }
+
+    playWalkSound(){
+        if (this.framesTillSound > 0){
+            this.framesTillSound -= 1;
+            if (this.framesTillSound == 10){
+                STEP_SOUND2.play();
+            }
+        }
+        else{
+            this.framesTillSound = 20;
+            STEP_SOUND1.play();
+        }
     }
 
     reset(){
@@ -485,12 +510,14 @@ var currentStage = 0;
 var totalFrames = 0;
 
 // hardcoded call  for now
-setupStage([1]);
+setupStage([1, true]);
 
 
 function setupStage(values){
+    if (!values[1]){
+        START_STAGE_SOUND.play();
+    }
     let stageNr = values[0];
-    console.log(stageNr)
     totalFrames = 0;
     currentStage = stageNr;
     gameState = GAME_STATES.ALIVE;
@@ -656,14 +683,15 @@ function checkGameObjectCollission(obj){
 
 function winStage(){
     gameState = GAME_STATES.WIN;
-    BUTTONS.push(new Button(CANVAS.width / 2 - 100, CANVAS.height / 2 + 100, "Retry", setupStage, [currentStage]));
-    BUTTONS.push(new Button(CANVAS.width / 2 + 100, CANVAS.height / 2 + 100, "Next", setupStage, [currentStage + 1]));
+    WIN_SOUND.play();
+    BUTTONS.push(new Button(CANVAS.width / 2 - 100, CANVAS.height / 2 + 100, "Retry", setupStage, [currentStage, true]));
+    BUTTONS.push(new Button(CANVAS.width / 2 + 100, CANVAS.height / 2 + 100, "Next", setupStage, [currentStage + 1, false]));
 }
 
 function loseStage(){
     gameState = GAME_STATES.DEAD;
     DEATH_SOUND.play();
-    BUTTONS.push(new Button(CANVAS.width / 2, CANVAS.height / 2 + 100, "Retry", setupStage, [currentStage]));
+    BUTTONS.push(new Button(CANVAS.width / 2, CANVAS.height / 2 + 100, "Retry", setupStage, [currentStage, true]));
 }
 
 function updateCamera(){
