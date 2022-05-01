@@ -4,6 +4,7 @@
 // 1. add player texture
 // 3. load unload properly
 // 4. add levels and or generate them
+// 5. add some environmental things
 
 // loading textures and images
 
@@ -23,6 +24,7 @@ function loadSound(source){
 var MOUNTAIN_IMAGE = loadImage("mountains_background.png");
 var TILES_IMAGE = loadImage("tiles_spritesheet.png");
 var COIN_IMAGES = loadImage("coins.png");
+var P1_TILES = loadImage("p1_spritesheet.png");
 
 
 // sounds
@@ -229,8 +231,8 @@ class Platform extends GameObject{
                     }
                 }
                 let imagePos = this.tileSet.getTilePos(tileIndex);
-                context.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize,
-                                  this.tileSet.tileSize, this.rect.xcoord + x, this.rect.ycoord + y, 51, 51)
+                context.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize.x,
+                                  this.tileSet.tileSize.y, this.rect.xcoord + x, this.rect.ycoord + y, 51, 51)
             }
         }
     }
@@ -244,22 +246,15 @@ class Coin extends GameObject{
         let size = 50;
         super(x, y, COIN_SIZE, COIN_SIZE, 5, null);
         this.tileSet = tileSet;
-        this.framesTilNext = Math.floor(Math.random() * COIN_FRAME_PER_IMAGE);
-        this.frameIndex = 0;
+        this.animation = new Animation(7, [0, 1, 2, 3, 4, 5, 6, 7], true)
     }
 
     draw(){
-        if (this.framesTilNext > 0){
-            this.framesTilNext -= 1;
-        }
-        else{
-            this.framesTilNext = COIN_FRAME_PER_IMAGE;
-            this.frameIndex = (this.frameIndex + 1) % 8;  // hardcoded for now
-        }
-        let imagePos = this.tileSet.getTilePos(this.frameIndex);
+        let frameIndex = this.animation.getImageIndex();
+        let imagePos = this.tileSet.getTilePos(frameIndex);
 
-        context.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize,
-                          this.tileSet.tileSize, this.rect.xcoord, this.rect.ycoord, COIN_SIZE, COIN_SIZE)
+        context.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize.x,
+                          this.tileSet.tileSize.y, this.rect.xcoord, this.rect.ycoord, COIN_SIZE, COIN_SIZE)
 
     }
 }
@@ -276,6 +271,13 @@ class Player extends GameObject{
         this.objectAdjacentPlatforms = [null, null, null, null];
         this.lastJumpedPlatform = null;
         this.is_dead = false;
+        this.currentWalkingFrame = 0;
+    }
+
+    draw(){
+        if (this.xke != 0){
+
+        }
     }
 
     reset(){
@@ -346,7 +348,43 @@ class TileSet{
     getTilePos(index){
         let x = index % this.tilesPerRow;
         let y = Math.floor(index / this.tilesPerRow);
-        return [x * this.tileSize, y * this.tileSize];
+        return [x * this.tileSize.x, y * this.tileSize.y];
+    }
+}
+
+class Animation{
+    constructor(framesPerImage, imageIndexes, randomStart){
+        this.framesPerImage = framesPerImage;
+        this.imageIndexes = imageIndexes;
+        this.currentIndex = 0;
+        this.randomStart = randomStart;
+        this.framesTillNext = this.framesPerImage;
+        this.restart();
+    }
+
+    restart(){
+        if (this.randomStart){
+            this.currentIndex = Math.floor(Math.random() * this.imageIndexes.length);
+        }
+        else{
+            this.currentIndex = 0;
+        }
+        this.framesTillNext = this.framesPerImage;
+    }
+
+    _set_start_index(){
+
+    }
+
+    getImageIndex(){
+        if (this.framesTillNext > 0){
+            this.framesTillNext -= 1;
+        }
+        else{
+            this.framesTillNext = this.framesPerImage;
+            this.currentIndex = (this.currentIndex + 1) % this.imageIndexes.length;
+        }
+        return this.imageIndexes[this.currentIndex];
     }
 }
 
@@ -364,7 +402,7 @@ let keysDown = {};
 
 const PLAYER = new Player(100, 160, 32, 32, 64, MATERIALS["flesh"]);
 
-const GRASS_TILE_SET = new TileSet(TILES_IMAGE, 70, 8);
+const GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8);
 
 const PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(150, 500, 800, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
@@ -373,7 +411,7 @@ const PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_T
                    new Platform(50, 100, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(-800, 150, 600, 100, 100, MATERIALS["wall"], GRASS_TILE_SET)]
 
-const COIN_TILESET = new TileSet(COIN_IMAGES, 16, 8);
+const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8);
 
 const COINS = [new Coin(0, 0, COIN_TILESET),
                new Coin(100, 0, COIN_TILESET),
