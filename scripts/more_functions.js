@@ -263,7 +263,7 @@ class Coin extends GameObject{
 
 class Player extends GameObject{
     // a game object that can move and is not a static surrounding
-    constructor(x, y, w, h, mass, material){
+    constructor(x, y, w, h, mass, material, tileSet, reverseTileSet){
         super(x, y, w, h, mass, material);
         this.yke = 0;  // y kinetic energy
         this.xke = 0;
@@ -272,26 +272,45 @@ class Player extends GameObject{
         this.objectAdjacentPlatforms = [null, null, null, null];
         this.lastJumpedPlatform = null;
         this.is_dead = false;
+        this.tileSet = tileSet;
+        this.rTileSet = reverseTileSet;
         this.walkAnimation = new Animation(5, [2, 3, 7, 8, 9], false)
     }
 
     draw(){
-        let tileIndex = 5;
-        let tileSet = PLAYER_TILESET;
-        if (this.xke > 0.5){
-
+        let tileIndex = 12;
+        let tileSet = this.tileSet;
+        if (this.is_dead){
+            if (this.xke > 0){
+                tileIndex = 6;
+            }
+            else{
+                tileIndex = 0;
+                tileSet = this.rTileSet;
+            }
+        }
+        else if (this.objectAdjacentPlatforms[0] == null){
+            if (this.xke > 0){
+                tileIndex = 2;
+            }
+            else{
+                tileIndex = 4;
+                tileSet = this.rTileSet;
+            }
+        }
+        else if (this.xke > 0.5){
             tileIndex = this.walkAnimation.getImageIndex();
         }
         else if (this.xke < -0.5){
             tileIndex = this.walkAnimation.getImageIndex();
-            tileIndex = PLAYER_TILESET.tilesPerRow * (Math.floor(tileIndex / PLAYER_TILESET.tilesPerRow)) +
-                        ((PLAYER_TILESET.tilesPerRow - 1) -  tileIndex % PLAYER_TILESET.tilesPerRow);
-            tileSet = R_PLAYER_TILESET;
+            tileIndex = this.tileSet.tilesPerRow * (Math.floor(tileIndex / this.tileSet.tilesPerRow)) +
+                        ((this.tileSet.tilesPerRow - 1) -  tileIndex % this.tileSet.tilesPerRow);
+            tileSet = this.rTileSet;
         }
         let imagePos = tileSet.getTilePos(tileIndex);
         context.drawImage(tileSet.image, imagePos[0], imagePos[1], tileSet.tileSize.x,
-                          tileSet.tileSize.y, this.rect.xcoord, this.rect.ycoord, this.rect.width + 10,
-                          this.rect.height)
+                          tileSet.tileSize.y, this.rect.xcoord, this.rect.ycoord - 10, this.rect.width + 10,
+                          this.rect.height + 10)
     }
 
     reset(){
@@ -353,16 +372,17 @@ class Material{
 
 
 class TileSet{
-    constructor(image, tileSize, tilesPerRow){
+    constructor(image, tileSize, tilesPerRow, offset){
         this.image = image;
         this.tilesPerRow = tilesPerRow;
         this.tileSize = tileSize;
+        this.offset = offset;
     }
 
     getTilePos(index){
         let x = index % this.tilesPerRow;
         let y = Math.floor(index / this.tilesPerRow);
-        return [x * this.tileSize.x, y * this.tileSize.y];
+        return [this.offset.x + x * this.tileSize.x, this.offset.y + y * this.tileSize.y];
     }
 }
 
@@ -414,12 +434,12 @@ MATERIALS = {
 
 let keysDown = {};
 
-const PLAYER_TILESET = new TileSet(P1_TILES, new Vector2(73, 97), 7)
-const R_PLAYER_TILESET = new TileSet(P1_TILES_REVERSE, new Vector2(73, 97), 7)
+const PLAYER_TILESET = new TileSet(P1_TILES, new Vector2(73, 97), 7, new Vector2(0, 0))
+const R_PLAYER_TILESET = new TileSet(P1_TILES_REVERSE, new Vector2(73, 97), 7, new Vector2(-2, 0))
 
-const PLAYER = new Player(100, 160, 50, 70, 64, MATERIALS["flesh"]);
+const PLAYER = new Player(100, 160, 50, 70, 64, MATERIALS["flesh"], PLAYER_TILESET, R_PLAYER_TILESET);
 
-const GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8);
+const GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
 
 const PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(150, 500, 800, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
@@ -427,7 +447,7 @@ const PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_T
                    new Platform(700, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(-800, 150, 600, 100, 100, MATERIALS["wall"], GRASS_TILE_SET)]
 
-const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8);
+const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8, new Vector2(0, 0));
 
 const COINS = [new Coin(0, 0, COIN_TILESET),
                new Coin(100, 0, COIN_TILESET),
