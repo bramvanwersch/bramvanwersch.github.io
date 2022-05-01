@@ -1,6 +1,7 @@
 
 
 // TODO
+// 2. add buttons to go next level or restart
 // 3. load unload properly
 // 4. add levels and or generate them
 // 5. add some environmental things
@@ -143,6 +144,32 @@ class Rectangle{
         return true;
     }
 
+}
+
+class Button{
+    constructor(x, y, text, callable, args){
+        this.text = text;
+        let textSize = CONTEXT.measureText(this.text);
+        let width = textSize.width + 25;
+        this.rect = new Rectangle(x - width / 2, y - 35, width, 50);
+        this.callable = callable;
+        this.args = args;
+    }
+
+    draw(){
+        CONTEXT.lineWidth = 5;
+        // function is at the bottom
+        roundRect(this.rect.xcoord, this.rect.ycoord, this.rect.width, 50);
+
+        CONTEXT.font = "30px Impact";
+        CONTEXT.fillStyle = "white";
+        CONTEXT.textAlign = "center"
+        CONTEXT.fillText(this.text, this.rect.xcoord + this.rect.width / 2, this.rect.ycoord + 35);
+    }
+
+    click(){
+        this.callable(this.args);
+    }
 }
 
 class GameObject{
@@ -455,14 +482,19 @@ var camera = null;
 
 var coinCounter = [0, 1];  // current, total
 var currentStage = 0;
+var totalFrames = 0;
 
 // hardcoded call  for now
-setupStage();
+setupStage([1]);
 
 
-function setupStage(){
-    currentStage = 1;
+function setupStage(values){
+    let stageNr = values[0];
+    console.log(stageNr)
+    totalFrames = 0;
+    currentStage = stageNr;
     gameState = GAME_STATES.ALIVE;
+    BUTTONS = []; // reset these
     PLAYER = new Player(100, 160, 40, 70, 64, MATERIALS["flesh"], PLAYER_TILESET, R_PLAYER_TILESET);
     GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
     PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
@@ -486,16 +518,17 @@ function main(){
         PLAYER.move();
         updateCamera();
         draw();
+        totalFrames += 1;
     }
     else if (gameState == GAME_STATES.WIN){
         draw();
-        notifyText("You won stage " + currentStage + ". Congratulations");
+        notifyText(`You won stage ${currentStage} in ${totalFrames} frames. Congratulations.`);
         // slow down camera
         camera = camera.multiply(0.9);
     }
     else{
         draw();
-        notifyText("Oops you died. Try again (f5)");
+        notifyText("Oops you died");
         // slow down camera
         camera = camera.multiply(0.9);
     }
@@ -606,8 +639,7 @@ function checkGameObjectCollission(obj){
     }
     // if player is to far from platforms KILL
     if (PLAYER.rect.xcoord < minx - 250 || PLAYER.rect.xcoord > maxx + 250 || PLAYER.rect.ycoord < miny - 250 || PLAYER.rect.ycoord > maxy + 250){
-        gameState = GAME_STATES.DEAD;
-        DEATH_SOUND.play();
+        loseStage();
     }
     // check coin collision
     for (let i = COINS.length - 1; i >= 0; i--){
@@ -616,12 +648,23 @@ function checkGameObjectCollission(obj){
             COIN_SOUNDS[i].play();
             coinCounter[0] += 1;
             if (coinCounter[0] == coinCounter[1]){
-                gameState = GAME_STATES.WIN;
+                winStage();
             }
         }
     }
 }
 
+function winStage(){
+    gameState = GAME_STATES.WIN;
+    BUTTONS.push(new Button(CANVAS.width / 2 - 100, CANVAS.height / 2 + 100, "Retry", setupStage, [currentStage]));
+    BUTTONS.push(new Button(CANVAS.width / 2 + 100, CANVAS.height / 2 + 100, "Next", setupStage, [currentStage + 1]));
+}
+
+function loseStage(){
+    gameState = GAME_STATES.DEAD;
+    DEATH_SOUND.play();
+    BUTTONS.push(new Button(CANVAS.width / 2, CANVAS.height / 2 + 100, "Retry", setupStage, [currentStage]));
+}
 
 function updateCamera(){
     let x = CANVAS.width / 2 - PLAYER.rect.center.x;
@@ -678,7 +721,10 @@ function drawUI(){
     let imagePos = COIN_TILESET.getTilePos(0);
     CONTEXT.drawImage(COIN_TILESET.image, imagePos[0], imagePos[1], COIN_TILESET.tileSize.x,
                       COIN_TILESET.tileSize.y, 62, 10, 40, 40)
-    CONTEXT.draw
+
+    for (let i = 0; i < BUTTONS.length; i++){
+        BUTTONS[i].draw();
+    }
 }
 
 
@@ -700,9 +746,53 @@ function clickMouse(event) {
     let rect = CANVAS.getBoundingClientRect();
     let x = event.clientX - rect.left;
     let y = event.clientY - rect.top;
+
+    for (let i = 0; i < BUTTONS.length; i++){
+        if (BUTTONS[i].rect.collidesWith(new Rectangle(x, y, 1, 1))){
+            BUTTONS[i].click();
+        }
+
+    }
 }
 
 // make sure that the main function is running
 window.onload = function(){
     main();
+}
+
+function roundRect(x, y, width, height, radius, fill, stroke) {
+// https://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-using-html-canvas
+    if (typeof stroke === 'undefined') {
+        stroke = true;
+    }
+    if (typeof radius === 'undefined') {
+        radius = 5;
+    }
+    if (typeof radius === 'number') {
+        radius = {tl: radius, tr: radius, br: radius, bl: radius};
+    }
+    else {
+        var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+        for (var side in defaultRadius) {
+          radius[side] = radius[side] || defaultRadius[side];
+        }
+    }
+    CONTEXT.beginPath();
+    CONTEXT.moveTo(x + radius.tl, y);
+    CONTEXT.lineTo(x + width - radius.tr, y);
+    CONTEXT.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    CONTEXT.lineTo(x + width, y + height - radius.br);
+    CONTEXT.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    CONTEXT.lineTo(x + radius.bl, y + height);
+    CONTEXT.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    CONTEXT.lineTo(x, y + radius.tl);
+    CONTEXT.quadraticCurveTo(x, y, x + radius.tl, y);
+    CONTEXT.closePath();
+    if (fill) {
+        CONTEXT.fill();
+    }
+    if (stroke) {
+        CONTEXT.stroke();
+    }
+
 }
