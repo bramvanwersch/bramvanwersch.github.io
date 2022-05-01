@@ -25,12 +25,13 @@ var MOUNTAIN_IMAGE = loadImage("mountains_background.png");
 var TILES_IMAGE = loadImage("tiles_spritesheet.png");
 var COIN_IMAGES = loadImage("coins.png");
 var P1_TILES = loadImage("p1_spritesheet.png");
+var P1_TILES_REVERSE = loadImage("p1_spritesheet_reverse.png");
 
 
 // sounds
 var COIN_SOUNDS = [loadSound("coin1.wav"), loadSound("coin2.wav"), loadSound("coin3.wav")];
 var JUMP_SOUND = loadSound("jump.wav");
-JUMP_SOUND.volume = 0.25;
+JUMP_SOUND.volume = 0.1;
 JUMP_SOUND.playbackRate = 1.5;
 var DEATH_SOUND = loadSound("death.wav");
 
@@ -262,8 +263,8 @@ class Coin extends GameObject{
 
 class Player extends GameObject{
     // a game object that can move and is not a static surrounding
-    constructor(x, y, w, h, mass){
-        super(x, y, w, h, mass);
+    constructor(x, y, w, h, mass, material){
+        super(x, y, w, h, mass, material);
         this.yke = 0;  // y kinetic energy
         this.xke = 0;
         this.gpe = 0;  // gravitational potential energy
@@ -271,13 +272,26 @@ class Player extends GameObject{
         this.objectAdjacentPlatforms = [null, null, null, null];
         this.lastJumpedPlatform = null;
         this.is_dead = false;
-        this.currentWalkingFrame = 0;
+        this.walkAnimation = new Animation(5, [2, 3, 7, 8, 9], false)
     }
 
     draw(){
-        if (this.xke != 0){
+        let tileIndex = 5;
+        let tileSet = PLAYER_TILESET;
+        if (this.xke > 0.5){
 
+            tileIndex = this.walkAnimation.getImageIndex();
         }
+        else if (this.xke < -0.5){
+            tileIndex = this.walkAnimation.getImageIndex();
+            tileIndex = PLAYER_TILESET.tilesPerRow * (Math.floor(tileIndex / PLAYER_TILESET.tilesPerRow)) +
+                        ((PLAYER_TILESET.tilesPerRow - 1) -  tileIndex % PLAYER_TILESET.tilesPerRow);
+            tileSet = R_PLAYER_TILESET;
+        }
+        let imagePos = tileSet.getTilePos(tileIndex);
+        context.drawImage(tileSet.image, imagePos[0], imagePos[1], tileSet.tileSize.x,
+                          tileSet.tileSize.y, this.rect.xcoord, this.rect.ycoord, this.rect.width + 10,
+                          this.rect.height)
     }
 
     reset(){
@@ -362,6 +376,10 @@ class Animation{
         this.restart();
     }
 
+    get totalImages(){
+        return this.imageIndexes.length;
+    }
+
     restart(){
         if (this.randomStart){
             this.currentIndex = Math.floor(Math.random() * this.imageIndexes.length);
@@ -370,10 +388,6 @@ class Animation{
             this.currentIndex = 0;
         }
         this.framesTillNext = this.framesPerImage;
-    }
-
-    _set_start_index(){
-
     }
 
     getImageIndex(){
@@ -400,7 +414,10 @@ MATERIALS = {
 
 let keysDown = {};
 
-const PLAYER = new Player(100, 160, 32, 32, 64, MATERIALS["flesh"]);
+const PLAYER_TILESET = new TileSet(P1_TILES, new Vector2(73, 97), 7)
+const R_PLAYER_TILESET = new TileSet(P1_TILES_REVERSE, new Vector2(73, 97), 7)
+
+const PLAYER = new Player(100, 160, 50, 70, 64, MATERIALS["flesh"]);
 
 const GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8);
 
@@ -408,7 +425,6 @@ const PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_T
                    new Platform(150, 500, 800, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(500, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(700, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                   new Platform(50, 100, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
                    new Platform(-800, 150, 600, 100, 100, MATERIALS["wall"], GRASS_TILE_SET)]
 
 const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8);
@@ -581,9 +597,10 @@ function drawCoins(){
 
 function drawPlayer(){
 // draw PLAYER
-    context.fillStyle = "red";
+    //context.fillStyle = "red";
     PLAYER.rect.move(camera);
-    context.fillRect(PLAYER.rect.xcoord, PLAYER.rect.ycoord, PLAYER.rect.width, PLAYER.rect.height);
+    PLAYER.draw();
+    //context.fillRect(PLAYER.rect.xcoord, PLAYER.rect.ycoord, PLAYER.rect.width, PLAYER.rect.height);
 }
 
 
