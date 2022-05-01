@@ -1,10 +1,11 @@
 
 
 // TODO
-// 1. add player texture
 // 3. load unload properly
 // 4. add levels and or generate them
 // 5. add some environmental things
+// 6. crouching?
+// 7. pause functionality with quit and restart
 
 // loading textures and images
 
@@ -232,7 +233,7 @@ class Platform extends GameObject{
                     }
                 }
                 let imagePos = this.tileSet.getTilePos(tileIndex);
-                context.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize.x,
+                CONTEXT.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize.x,
                                   this.tileSet.tileSize.y, this.rect.xcoord + x, this.rect.ycoord + y, 51, 51)
             }
         }
@@ -240,7 +241,6 @@ class Platform extends GameObject{
 }
 
 const COIN_SIZE = 30;
-const COIN_FRAME_PER_IMAGE = 7;
 
 class Coin extends GameObject{
     constructor(x, y, tileSet){
@@ -254,12 +254,17 @@ class Coin extends GameObject{
         let frameIndex = this.animation.getImageIndex();
         let imagePos = this.tileSet.getTilePos(frameIndex);
 
-        context.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize.x,
+        CONTEXT.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize.x,
                           this.tileSet.tileSize.y, this.rect.xcoord, this.rect.ycoord, COIN_SIZE, COIN_SIZE)
 
     }
 }
 
+const GAME_STATES = {
+    ALIVE: "a",
+    DEAD: "d",
+    WIN: "w"
+}
 
 class Player extends GameObject{
     // a game object that can move and is not a static surrounding
@@ -271,7 +276,6 @@ class Player extends GameObject{
         // adjacent in order of bottom, left, top, rigth
         this.objectAdjacentPlatforms = [null, null, null, null];
         this.lastJumpedPlatform = null;
-        this.is_dead = false;
         this.tileSet = tileSet;
         this.rTileSet = reverseTileSet;
         this.walkAnimation = new Animation(5, [2, 3, 7, 8, 9], false)
@@ -280,7 +284,7 @@ class Player extends GameObject{
     draw(){
         let tileIndex = 12;
         let tileSet = this.tileSet;
-        if (this.is_dead){
+        if (gameState == GAME_STATES.DEAD){
             if (this.xke > 0){
                 tileIndex = 6;
             }
@@ -308,8 +312,8 @@ class Player extends GameObject{
             tileSet = this.rTileSet;
         }
         let imagePos = tileSet.getTilePos(tileIndex);
-        context.drawImage(tileSet.image, imagePos[0], imagePos[1], tileSet.tileSize.x,
-                          tileSet.tileSize.y, this.rect.xcoord, this.rect.ycoord - 10, this.rect.width + 10,
+        CONTEXT.drawImage(tileSet.image, imagePos[0], imagePos[1], tileSet.tileSize.x,
+                          tileSet.tileSize.y, this.rect.xcoord - 10, this.rect.ycoord - 10, this.rect.width + 20,
                           this.rect.height + 10)
     }
 
@@ -423,8 +427,8 @@ class Animation{
 }
 
 // CONSTANTS
-const canvas = document.getElementById("canvas");
-const context = canvas.getContext("2d");
+const CANVAS = document.getElementById("canvas");
+const CONTEXT = CANVAS.getContext("2d");
 
 MATERIALS = {
     "air": new Material(0.9),
@@ -432,32 +436,49 @@ MATERIALS = {
     "flesh": new Material(0.3)
 }
 
-let keysDown = {};
-
+// tilesets
 const PLAYER_TILESET = new TileSet(P1_TILES, new Vector2(73, 97), 7, new Vector2(0, 0))
 const R_PLAYER_TILESET = new TileSet(P1_TILES_REVERSE, new Vector2(73, 97), 7, new Vector2(-2, 0))
-
-const PLAYER = new Player(100, 160, 50, 70, 64, MATERIALS["flesh"], PLAYER_TILESET, R_PLAYER_TILESET);
-
-const GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
-
-const PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                   new Platform(150, 500, 800, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                   new Platform(500, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                   new Platform(700, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                   new Platform(-800, 150, 600, 100, 100, MATERIALS["wall"], GRASS_TILE_SET)]
-
 const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8, new Vector2(0, 0));
 
-const COINS = [new Coin(0, 0, COIN_TILESET),
-               new Coin(100, 0, COIN_TILESET),
-               new Coin(250, 400, COIN_TILESET)]
+// these will be drawn depending on gamestate
+var BUTTONS = [];
 
-let camera = new Vector2(0, 0);
+// set these every stage
+var PLATFORMS = [];
+var COINS = [];
+var PLAYER = null;
+var gameState = GAME_STATES.ALIVE;
 
+var keysDown = {};
+var camera = null;
+
+var coinCounter = [0, 1];  // current, total
+var currentStage = 0;
+
+// hardcoded call  for now
+setupStage();
+
+
+function setupStage(){
+    currentStage = 1;
+    gameState = GAME_STATES.ALIVE;
+    PLAYER = new Player(100, 160, 40, 70, 64, MATERIALS["flesh"], PLAYER_TILESET, R_PLAYER_TILESET);
+    GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
+    PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                       new Platform(150, 500, 800, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                       new Platform(500, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                       new Platform(700, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
+                       new Platform(-800, 150, 600, 100, 100, MATERIALS["wall"], GRASS_TILE_SET)]
+
+    COINS = [new Coin(0, 0, COIN_TILESET)]
+
+    coinCounter = [0, COINS.length];
+    camera = new Vector2(0, 0);
+}
 
 function main(){
-    if (!PLAYER.is_dead){
+    if (gameState == GAME_STATES.ALIVE){
         // loop function
         processInput();
         // do this for all moving objects later
@@ -466,16 +487,37 @@ function main(){
         updateCamera();
         draw();
     }
+    else if (gameState == GAME_STATES.WIN){
+        draw();
+        notifyText("You won stage " + currentStage + ". Congratulations");
+        // slow down camera
+        camera = camera.multiply(0.9);
+    }
     else{
         draw();
-        context.font = "50px Impact";
-        context.fillStyle = "darkred";
-        context.textAlign = "center";
-        context.fillText("Oops you died. Try again (f5)", canvas.width/2, canvas.height/2);
+        notifyText("Oops you died. Try again (f5)");
         // slow down camera
         camera = camera.multiply(0.9);
     }
     requestAnimationFrame(main);
+}
+
+var fontSize = 30;
+var fontChange = 1;
+
+function notifyText(text){
+    // text with a wobble, relies on global fontSize parameter
+    if (fontSize > 70 && fontChange > 0){
+        fontChange = -1;
+    }
+    else if (fontSize < 30 && fontChange < 0){
+        fontChange = 1;
+    }
+    fontSize += fontChange;
+    CONTEXT.font = fontSize + "px Impact";
+    CONTEXT.fillStyle = "darkred";
+    CONTEXT.textAlign = "center";
+    CONTEXT.fillText(text, CANVAS.width/2, CANVAS.height/2);
 }
 
 
@@ -564,7 +606,7 @@ function checkGameObjectCollission(obj){
     }
     // if player is to far from platforms KILL
     if (PLAYER.rect.xcoord < minx - 250 || PLAYER.rect.xcoord > maxx + 250 || PLAYER.rect.ycoord < miny - 250 || PLAYER.rect.ycoord > maxy + 250){
-        PLAYER.is_dead = true;
+        gameState = GAME_STATES.DEAD;
         DEATH_SOUND.play();
     }
     // check coin collision
@@ -572,30 +614,35 @@ function checkGameObjectCollission(obj){
         if (obj.rect.collidesWith(COINS[i].rect)){
             COINS.splice(i, 1);
             COIN_SOUNDS[i].play();
+            coinCounter[0] += 1;
+            if (coinCounter[0] == coinCounter[1]){
+                gameState = GAME_STATES.WIN;
+            }
         }
     }
 }
 
 
 function updateCamera(){
-    let x = canvas.width / 2 - PLAYER.rect.center.x;
-    let y = canvas.height / 2 - PLAYER.rect.center.y;
+    let x = CANVAS.width / 2 - PLAYER.rect.center.x;
+    let y = CANVAS.height / 2 - PLAYER.rect.center.y;
     camera = camera.add(new Vector2(x, y).substract(camera));
 }
 
 
 // drawing functions
 function draw(){
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
+    CANVAS.width  = window.innerWidth;
+    CANVAS.height = window.innerHeight;
     drawBackground();
     drawPlatforms();
     drawCoins();
     drawPlayer();
+    drawUI();
 }
 
 function drawBackground(){
-    context.drawImage(MOUNTAIN_IMAGE, 0, 0, canvas.width, canvas.height);
+    CONTEXT.drawImage(MOUNTAIN_IMAGE, 0, 0, CANVAS.width, CANVAS.height);
 }
 
 function drawPlatforms(){
@@ -617,10 +664,21 @@ function drawCoins(){
 
 function drawPlayer(){
 // draw PLAYER
-    //context.fillStyle = "red";
     PLAYER.rect.move(camera);
     PLAYER.draw();
-    //context.fillRect(PLAYER.rect.xcoord, PLAYER.rect.ycoord, PLAYER.rect.width, PLAYER.rect.height);
+}
+
+function drawUI(){
+    // draw coin goal
+    CONTEXT.font = "30px Impact";
+    CONTEXT.fillStyle = "black";
+    CONTEXT.textAlign = "start"
+    CONTEXT.fillText(`${coinCounter[0]} / ${coinCounter[1]}`, 10, 40);
+
+    let imagePos = COIN_TILESET.getTilePos(0);
+    CONTEXT.drawImage(COIN_TILESET.image, imagePos[0], imagePos[1], COIN_TILESET.tileSize.x,
+                      COIN_TILESET.tileSize.y, 62, 10, 40, 40)
+    CONTEXT.draw
 }
 
 
@@ -632,6 +690,17 @@ window.addEventListener("keydown", function(event){
 window.addEventListener("keyup", function(event){
     delete keysDown[event.keyCode];
 });
+
+
+window.addEventListener("mouseup", function(event){
+    clickMouse(event);
+})
+
+function clickMouse(event) {
+    let rect = CANVAS.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+}
 
 // make sure that the main function is running
 window.onload = function(){
