@@ -6,7 +6,7 @@
 // 5. add some environmental things
 // 6. crouching?
 // 7. pause functionality with quit and restart
-// 8. add second player. Play with 2 at once and get best time
+// 8. add camera for player2
 
 // loading textures and images
 
@@ -28,7 +28,8 @@ var TILES_IMAGE = loadImage("tiles_spritesheet.png");
 var COIN_IMAGES = loadImage("coins.png");
 var P1_TILES = loadImage("p1_spritesheet.png");
 var P1_TILES_REVERSE = loadImage("p1_spritesheet_reverse.png");
-
+var P2_TILES = loadImage("p2_spritesheet.png");
+var P2_TILES_REVERSE = loadImage("p2_spritesheet_reverse.png");
 
 // sounds
 var COIN_SOUNDS = [loadSound("coin1.wav"), loadSound("coin2.wav"), loadSound("coin3.wav")];
@@ -487,15 +488,18 @@ const CANVAS = document.getElementById("canvas");
 const CONTEXT = CANVAS.getContext("2d");
 
 // tilesets
-const PLAYER_TILESET = new TileSet(P1_TILES, new Vector2(73, 97), 7, new Vector2(0, 0))
+const PLAYER1_TILESET = new TileSet(P1_TILES, new Vector2(73, 97), 7, new Vector2(0, 0))
+const R_PLAYER1_TILESET = new TileSet(P1_TILES_REVERSE, new Vector2(73, 97), 7, new Vector2(-2, 0))
+const PLAYER2_TILESET = new TileSet(P2_TILES, new Vector2(70, 94), 7, new Vector2(1, 0))
+const R_PLAYER2_TILESET = new TileSet(P2_TILES_REVERSE, new Vector2(70, 94), 7, new Vector2(3, 0))
 GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
-const R_PLAYER_TILESET = new TileSet(P1_TILES_REVERSE, new Vector2(73, 97), 7, new Vector2(-2, 0))
 const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8, new Vector2(0, 0));
 
 MATERIALS = {
     "air": new Material(0.9, null),
     "grass": new Material(0.8, GRASS_TILE_SET),
-    "player": new Material(0.3, [PLAYER_TILESET, R_PLAYER_TILESET])
+    "player1": new Material(0.3, [PLAYER1_TILESET, R_PLAYER1_TILESET]),
+    "player2": new Material(0.3, [PLAYER2_TILESET, R_PLAYER2_TILESET]),
 }
 
 // these will be drawn depending on gamestate
@@ -504,7 +508,7 @@ var BUTTONS = [];
 // set these every stage
 var PLATFORMS = [];
 var COINS = [];
-var PLAYER = null;
+var PLAYERS = [null, null];
 var gameState = GAME_STATES.ALIVE;
 
 var keysDown = {};
@@ -517,7 +521,8 @@ var totalFrames = 0;
 
 const STAGES = [
     {
-        player: [0, 0],
+        player1: [0, 0],
+        player2: [-100, 0],
         platforms: [[-500, 50, 1100, 50, "grass"],
                     [800, -400, 50, 300, "grass"],
                     [1000, -400, 50, 500, "grass"],
@@ -526,7 +531,8 @@ const STAGES = [
         coins: [[-500, 0], [0, 130], [750, -400], [750, -300], [750, -200]]
     },
     {
-        player: [0, 0],
+        player1: [0, 0],
+        player2: [-100, 0],
         platforms: [[-500, 50, 1100, 50, "grass"],
                     [800, -400, 50, 300, "grass"],
                     [1000, -400, 50, 500, "grass"],
@@ -554,8 +560,11 @@ function setupStage(values){
     gameState = GAME_STATES.ALIVE;
 
     let stageData = STAGES[stageNr - 1];
-    PLAYER = new Player(stageData.player[0], stageData.player[1], 40, 70, 64, MATERIALS["player"],
-                        MATERIALS["player"].tileSet[0], MATERIALS["player"].tileSet[1]);
+    PLAYERS = [];
+    PLAYERS.push(new Player(stageData.player1[0], stageData.player1[1], 40, 70, 64, MATERIALS["player1"],
+                 MATERIALS["player1"].tileSet[0], MATERIALS["player1"].tileSet[1]),
+                 new Player(stageData.player2[0], stageData.player2[1], 40, 70, 64, MATERIALS["player2"],
+                 MATERIALS["player2"].tileSet[0], MATERIALS["player2"].tileSet[1]));
 
     PLATFORMS = [];
     for (let i = 0; i < stageData.platforms.length; i++){
@@ -578,8 +587,10 @@ function main(){
     if (gameState == GAME_STATES.ALIVE){
         // loop function
         // do this for all moving objects later
-        PLAYER.reset();
-        PLAYER.move();
+        for (let i = 0; i < PLAYERS.length; i++){
+            PLAYERS[i].reset();
+            PLAYERS[i].move();
+        }
         updateCamera();
         draw();
         totalFrames += 1;
@@ -640,39 +651,79 @@ function processInput(){
         }
     }
     else{
+        // player 1
+        // A
         if (65 in keysDown){
-            if (PLAYER.objectAdjacentPlatforms[0] != null){
-                PLAYER.xke -= 2;
+            if (PLAYERS[0].objectAdjacentPlatforms[0] != null){
+                PLAYERS[0].xke -= 2;
             }
             else{
-                PLAYER.xke -= 0.75;
+                PLAYERS[0].xke -= 0.75;
             }
         }
         // D
         if (68 in keysDown){
-            if (PLAYER.objectAdjacentPlatforms[0] != null){
-                PLAYER.xke += 2;
+            if (PLAYERS[0].objectAdjacentPlatforms[0] != null){
+                PLAYERS[0].xke += 2;
             }
             else{
-                PLAYER.xke += 0.75;
+                PLAYERS[0].xke += 0.75;
             }
         }
         // W
         if (87 in keysDown){
-            if (PLAYER.objectAdjacentPlatforms[0] != null){
-                PLAYER.yke = 8;
+            if (PLAYERS[0].objectAdjacentPlatforms[0] != null){
+                PLAYERS[0].yke = 8;
                 JUMP_SOUND.play();
             }
-            else if (PLAYER.objectAdjacentPlatforms[1] != null && !PLAYER.objectAdjacentPlatforms[1].equals(PLAYER.lastJumpedPlatform)){
-                PLAYER.yke = 8;
-                PLAYER.xke = -7;
-                PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[1];
+            else if (PLAYERS[0].objectAdjacentPlatforms[1] != null && !PLAYERS[0].objectAdjacentPlatforms[1].equals(PLAYERS[0].lastJumpedPlatform)){
+                PLAYERS[0].yke = 8;
+                PLAYERS[0].xke = -7;
+                PLAYERS[0].lastJumpedPlatform = PLAYERS[0].objectAdjacentPlatforms[1];
                 JUMP_SOUND.play();
             }
-            else if (PLAYER.objectAdjacentPlatforms[3] != null && !PLAYER.objectAdjacentPlatforms[3].equals(PLAYER.lastJumpedPlatform)){
-                PLAYER.yke = 8;
-                PLAYER.xke = 7;
-                PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[3];
+            else if (PLAYERS[0].objectAdjacentPlatforms[3] != null && !PLAYERS[0].objectAdjacentPlatforms[3].equals(PLAYERS[0].lastJumpedPlatform)){
+                PLAYERS[0].yke = 8;
+                PLAYERS[0].xke = 7;
+                PLAYERS[0].lastJumpedPlatform = PLAYERS[0].objectAdjacentPlatforms[3];
+                JUMP_SOUND.play();
+            }
+        }
+        // player 2
+        // left
+        if (37 in keysDown){
+            if (PLAYERS[1].objectAdjacentPlatforms[0] != null){
+                PLAYERS[1].xke -= 2;
+            }
+            else{
+                PLAYERS[1].xke -= 0.75;
+            }
+        }
+        // right
+        if (39 in keysDown){
+            if (PLAYERS[1].objectAdjacentPlatforms[0] != null){
+                PLAYERS[1].xke += 2;
+            }
+            else{
+                PLAYERS[1].xke += 0.75;
+            }
+        }
+        // up
+        if (38 in keysDown){
+            if (PLAYERS[1].objectAdjacentPlatforms[0] != null){
+                PLAYERS[1].yke = 8;
+                JUMP_SOUND.play();
+            }
+            else if (PLAYERS[1].objectAdjacentPlatforms[1] != null && !PLAYERS[1].objectAdjacentPlatforms[1].equals(PLAYERS[1].lastJumpedPlatform)){
+                PLAYERS[1].yke = 8;
+                PLAYERS[1].xke = -7;
+                PLAYERS[1].lastJumpedPlatform = PLAYERS[1].objectAdjacentPlatforms[1];
+                JUMP_SOUND.play();
+            }
+            else if (PLAYERS[1].objectAdjacentPlatforms[3] != null && !PLAYERS[1].objectAdjacentPlatforms[3].equals(PLAYERS[1].lastJumpedPlatform)){
+                PLAYERS[1].yke = 8;
+                PLAYERS[1].xke = 7;
+                PLAYERS[1].lastJumpedPlatform = PLAYERS[1].objectAdjacentPlatforms[3];
                 JUMP_SOUND.play();
             }
         }
@@ -721,8 +772,11 @@ function checkGameObjectCollission(obj){
         maxx = Math.max(maxx, PLATFORMS[i].rect.rigth);
         maxy = Math.max(maxy, PLATFORMS[i].rect.bottom);
     }
-    // if player is to far from platforms KILL
-    if (PLAYER.rect.xcoord < minx - 250 || PLAYER.rect.xcoord > maxx + 250 || PLAYER.rect.ycoord < miny - 250 || PLAYER.rect.ycoord > maxy + 250){
+    // if either player dies lose stage
+    if (PLAYERS[0].rect.xcoord < minx - 250 || PLAYERS[0].rect.xcoord > maxx + 250 || PLAYERS[0].rect.ycoord < miny - 250 || PLAYERS[0].rect.ycoord > maxy + 250){
+        loseStage();
+    }
+    if (PLAYERS[1].rect.xcoord < minx - 250 || PLAYERS[1].rect.xcoord > maxx + 250 || PLAYERS[1].rect.ycoord < miny - 250 || PLAYERS[1].rect.ycoord > maxy + 250){
         loseStage();
     }
     // check coin collision
@@ -753,8 +807,8 @@ function loseStage(){
 }
 
 function updateCamera(){
-    let x = CANVAS.width / 2 - PLAYER.rect.center.x;
-    let y = CANVAS.height / 2 - PLAYER.rect.center.y;
+    let x = CANVAS.width / 2 - PLAYERS[0].rect.center.x;
+    let y = CANVAS.height / 2 - PLAYERS[0].rect.center.y;
     camera = camera.add(new Vector2(x, y).substract(camera));
 }
 
@@ -792,9 +846,10 @@ function drawCoins(){
 }
 
 function drawPlayer(){
-// draw PLAYER
-    PLAYER.rect.move(camera);
-    PLAYER.draw();
+    for (let i = 0; i < PLAYERS.length; i++){
+        PLAYERS[i].rect.move(camera);
+        PLAYERS[i].draw();
+    }
 }
 
 function drawUI(){
