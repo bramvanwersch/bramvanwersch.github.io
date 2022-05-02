@@ -6,6 +6,7 @@
 // 5. add some environmental things
 // 6. crouching?
 // 7. pause functionality with quit and restart
+// 8. add second player. Play with 2 at once and get best time
 
 // loading textures and images
 
@@ -326,6 +327,9 @@ class Player extends GameObject{
                 tileSet = this.rTileSet;
             }
         }
+        else if (gameState == GAME_STATES.WIN){
+            tileIndex = 12;
+        }
         // in the air
         else if (this.objectAdjacentPlatforms[0] == null){
             if (this.xke > 0){
@@ -494,8 +498,6 @@ MATERIALS = {
     "player": new Material(0.3, [PLAYER_TILESET, R_PLAYER_TILESET])
 }
 
-
-
 // these will be drawn depending on gamestate
 var BUTTONS = [];
 
@@ -516,10 +518,22 @@ var totalFrames = 0;
 const STAGES = [
     {
         player: [0, 0],
-        platforms: [[0, 200, 500, 50, "grass"],
-                    [150, 500, 800, 50, "grass"]],
-        coins: [[0, 0], [100, 100]]
-    }
+        platforms: [[-500, 50, 1100, 50, "grass"],
+                    [800, -400, 50, 300, "grass"],
+                    [1000, -400, 50, 500, "grass"],
+                    [800, 50, 250, 50, "grass"],
+                    [0, 180, 800, 50, "grass"]],
+        coins: [[-500, 0], [0, 130], [750, -400], [750, -300], [750, -200]]
+    },
+    {
+        player: [0, 0],
+        platforms: [[-500, 50, 1100, 50, "grass"],
+                    [800, -400, 50, 300, "grass"],
+                    [1000, -400, 50, 500, "grass"],
+                    [800, 50, 250, 50, "grass"],
+                    [0, 180, 800, 50, "grass"]],
+        coins: [[-500, 0], [0, 130], [750, -400], [750, -300], [750, -200]]
+    },
 ]
 
 // hardcoded call  for now
@@ -560,9 +574,9 @@ function setupStage(values){
 }
 
 function main(){
+    processInput();
     if (gameState == GAME_STATES.ALIVE){
         // loop function
-        processInput();
         // do this for all moving objects later
         PLAYER.reset();
         PLAYER.move();
@@ -606,41 +620,61 @@ function notifyText(text){
 
 function processInput(){
     // A
-    if (65 in keysDown){
-        if (PLAYER.objectAdjacentPlatforms[0] != null){
-            PLAYER.xke -= 2;
+    if (gameState == GAME_STATES.DEAD || gameState == GAME_STATES.WIN){
+        // quite lazy, will cause lots of troubles if extended on
+        if (8 in keysDown){ // backspace
+            for (let i = 0; i < BUTTONS.length; i++){
+                if (BUTTONS[i].text == "Retry"){
+                   BUTTONS[i].click();
+                   return;
+                }
+            }
         }
-        else{
-            PLAYER.xke -= 0.75;
+        if (32 in keysDown){ // space
+            for (let i = 0; i < BUTTONS.length; i++){
+                if (BUTTONS[i].text == "Next"){
+                   BUTTONS[i].click();
+                   return;
+                }
+            }
         }
-
     }
-    // D
-    if (68 in keysDown){
-        if (PLAYER.objectAdjacentPlatforms[0] != null){
-            PLAYER.xke += 2;
+    else{
+        if (65 in keysDown){
+            if (PLAYER.objectAdjacentPlatforms[0] != null){
+                PLAYER.xke -= 2;
+            }
+            else{
+                PLAYER.xke -= 0.75;
+            }
         }
-        else{
-            PLAYER.xke += 0.75;
+        // D
+        if (68 in keysDown){
+            if (PLAYER.objectAdjacentPlatforms[0] != null){
+                PLAYER.xke += 2;
+            }
+            else{
+                PLAYER.xke += 0.75;
+            }
         }
-    }
-    // W
-    if (87 in keysDown){
-        if (PLAYER.objectAdjacentPlatforms[0] != null){
-            PLAYER.yke = 8;
-            JUMP_SOUND.play();
-        }
-        else if (PLAYER.objectAdjacentPlatforms[1] != null && !PLAYER.objectAdjacentPlatforms[1].equals(PLAYER.lastJumpedPlatform)){
-            PLAYER.yke = 8;
-            PLAYER.xke = -7;
-            PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[1];
-            JUMP_SOUND.play();
-        }
-        else if (PLAYER.objectAdjacentPlatforms[3] != null && !PLAYER.objectAdjacentPlatforms[3].equals(PLAYER.lastJumpedPlatform)){
-            PLAYER.yke = 8;
-            PLAYER.xke = 7;
-            PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[3];
-            JUMP_SOUND.play();
+        // W
+        if (87 in keysDown){
+            if (PLAYER.objectAdjacentPlatforms[0] != null){
+                PLAYER.yke = 8;
+                JUMP_SOUND.play();
+            }
+            else if (PLAYER.objectAdjacentPlatforms[1] != null && !PLAYER.objectAdjacentPlatforms[1].equals(PLAYER.lastJumpedPlatform)){
+                PLAYER.yke = 8;
+                PLAYER.xke = -7;
+                PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[1];
+                JUMP_SOUND.play();
+            }
+            else if (PLAYER.objectAdjacentPlatforms[3] != null && !PLAYER.objectAdjacentPlatforms[3].equals(PLAYER.lastJumpedPlatform)){
+                PLAYER.yke = 8;
+                PLAYER.xke = 7;
+                PLAYER.lastJumpedPlatform = PLAYER.objectAdjacentPlatforms[3];
+                JUMP_SOUND.play();
+            }
         }
     }
 }
@@ -695,7 +729,8 @@ function checkGameObjectCollission(obj){
     for (let i = COINS.length - 1; i >= 0; i--){
         if (obj.rect.collidesWith(COINS[i].rect)){
             COINS.splice(i, 1);
-            COIN_SOUNDS[i].play();
+            // play random coin sound
+            COIN_SOUNDS[Math.floor(Math.random() * COIN_SOUNDS.length)].play();
             coinCounter[0] += 1;
             if (coinCounter[0] == coinCounter[1]){
                 winStage();
@@ -802,7 +837,6 @@ function clickMouse(event) {
         if (BUTTONS[i].rect.collidesWith(new Rectangle(x, y, 1, 1))){
             BUTTONS[i].click();
         }
-
     }
 }
 
@@ -845,5 +879,4 @@ function roundRect(x, y, width, height, radius, fill, stroke) {
     if (stroke) {
         CONTEXT.stroke();
     }
-
 }
