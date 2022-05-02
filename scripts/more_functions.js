@@ -1,7 +1,6 @@
 
 
 // TODO
-// 2. add buttons to go next level or restart
 // 3. load unload properly
 // 4. add levels and or generate them
 // 5. add some environmental things
@@ -179,9 +178,8 @@ class Button{
 }
 
 class GameObject{
-    constructor(x, y, w, h, mass, material){
+    constructor(x, y, w, h, material){
         this.rect = new Rectangle(x, y, w, h);
-        this.mass = mass;
         this.material = material;
     }
 
@@ -219,8 +217,8 @@ class GameObject{
 
 class Platform extends GameObject{
     // make sure that it is multiple of 50
-    constructor(x, y, w, h, mass, material, tileSet){
-        super(x, y, w, h, mass, material);
+    constructor(x, y, w, h, material, tileSet){
+        super(x, y, w, h, material);
         this.tileSet = tileSet;
     }
 
@@ -278,7 +276,7 @@ const COIN_SIZE = 30;
 class Coin extends GameObject{
     constructor(x, y, tileSet){
         let size = 50;
-        super(x, y, COIN_SIZE, COIN_SIZE, 5, null);
+        super(x, y, COIN_SIZE, COIN_SIZE, null);
         this.tileSet = tileSet;
         this.animation = new Animation(7, [0, 1, 2, 3, 4, 5, 6, 7], true)
     }
@@ -302,7 +300,8 @@ const GAME_STATES = {
 class Player extends GameObject{
     // a game object that can move and is not a static surrounding
     constructor(x, y, w, h, mass, material, tileSet, reverseTileSet){
-        super(x, y, w, h, mass, material);
+        super(x, y, w, h, material);
+        this.mass = mass;
         this.yke = 0;  // y kinetic energy
         this.xke = 0;
         this.gpe = 0;  // gravitational potential energy
@@ -421,8 +420,9 @@ class Player extends GameObject{
 }
 
 class Material{
-    constructor(resistance){
+    constructor(resistance, tileSet){
         this.resistance = resistance;
+        this.tileSet = tileSet;
     }
 }
 
@@ -482,16 +482,19 @@ class Animation{
 const CANVAS = document.getElementById("canvas");
 const CONTEXT = CANVAS.getContext("2d");
 
-MATERIALS = {
-    "air": new Material(0.9),
-    "wall": new Material(0.8),
-    "flesh": new Material(0.3)
-}
-
 // tilesets
 const PLAYER_TILESET = new TileSet(P1_TILES, new Vector2(73, 97), 7, new Vector2(0, 0))
+GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
 const R_PLAYER_TILESET = new TileSet(P1_TILES_REVERSE, new Vector2(73, 97), 7, new Vector2(-2, 0))
 const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8, new Vector2(0, 0));
+
+MATERIALS = {
+    "air": new Material(0.9, null),
+    "grass": new Material(0.8, GRASS_TILE_SET),
+    "player": new Material(0.3, [PLAYER_TILESET, R_PLAYER_TILESET])
+}
+
+
 
 // these will be drawn depending on gamestate
 var BUTTONS = [];
@@ -509,28 +512,48 @@ var coinCounter = [0, 1];  // current, total
 var currentStage = 0;
 var totalFrames = 0;
 
+
+const STAGES = [
+    {
+        player: [0, 0],
+        platforms: [[0, 200, 500, 50, "grass"],
+                    [150, 500, 800, 50, "grass"]],
+        coins: [[0, 0], [100, 100]]
+    }
+]
+
 // hardcoded call  for now
 setupStage([1, true]);
-
 
 function setupStage(values){
     if (!values[1]){
         START_STAGE_SOUND.play();
     }
     let stageNr = values[0];
+    // loop back around
+    if (stageNr > STAGES.length){
+        stageNr = 1;
+    }
     totalFrames = 0;
     currentStage = stageNr;
-    gameState = GAME_STATES.ALIVE;
     BUTTONS = []; // reset these
-    PLAYER = new Player(100, 160, 40, 70, 64, MATERIALS["flesh"], PLAYER_TILESET, R_PLAYER_TILESET);
-    GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
-    PLATFORMS = [new Platform(0, 200, 500, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                       new Platform(150, 500, 800, 50, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                       new Platform(500, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                       new Platform(700, 190, 50, 250, 100, MATERIALS["wall"], GRASS_TILE_SET),
-                       new Platform(-800, 150, 600, 100, 100, MATERIALS["wall"], GRASS_TILE_SET)]
+    gameState = GAME_STATES.ALIVE;
 
-    COINS = [new Coin(0, 0, COIN_TILESET)]
+    let stageData = STAGES[stageNr - 1];
+    PLAYER = new Player(stageData.player[0], stageData.player[1], 40, 70, 64, MATERIALS["player"],
+                        MATERIALS["player"].tileSet[0], MATERIALS["player"].tileSet[1]);
+
+    PLATFORMS = [];
+    for (let i = 0; i < stageData.platforms.length; i++){
+        let pData = stageData.platforms[i];
+        PLATFORMS.push(new Platform(pData[0], pData[1], pData[2], pData[3], MATERIALS[pData[4]],
+                       MATERIALS[pData[4]].tileSet));
+    }
+    COINS = [];
+    for (let i = 0; i < stageData.coins.length; i++){
+        let cData = stageData.coins[i];
+        COINS.push(new Coin(cData[0], cData[1], COIN_TILESET));
+    }
 
     coinCounter = [0, COINS.length];
     camera = new Vector2(0, 0);
