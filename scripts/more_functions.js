@@ -1,7 +1,6 @@
 
 
 // TODO
-//  3. load unload properly
 //  4. add levels and or generate them
 //  5. add some environmental things
 //  7. pause functionality with quit and restart
@@ -494,6 +493,28 @@ class Animation{
     }
 }
 
+class Camera{
+    constructor(){
+        this.center = new Vector2(0, 0);
+    }
+
+    get rect(){
+        return new Rectangle(0, 0, CANVAS.width, CANVAS.height)
+    }
+
+    multiply(value){
+        this.center = this.center.multiply(value);
+    }
+
+    add(vector){
+        this.center = this.center.add(vector);
+    }
+
+    substract(vector){
+        this.center = this.center.substract(vector);
+    }
+}
+
 // CONSTANTS
 const CANVAS = document.getElementById("canvas");
 const CONTEXT = CANVAS.getContext("2d");
@@ -590,7 +611,7 @@ function setupStage(values){
     }
 
     coinCounter = [0, COINS.length];
-    camera = new Vector2(0, 0);
+    camera = new Camera();
 }
 
 function main(){
@@ -610,13 +631,13 @@ function main(){
         draw();
         notifyText(`You won stage ${currentStage} in ${totalFrames} frames. Congratulations.`);
         // slow down camera
-        camera = camera.multiply(0.9);
+        camera.multiply(0.9);
     }
     else{
         draw();
         notifyText("Oops you died");
         // slow down camera
-        camera = camera.multiply(0.9);
+        camera.multiply(0.9);
     }
     requestAnimationFrame(main);
 }
@@ -840,7 +861,9 @@ function loseStage(){
 function updateCamera(){
     let x = ((CANVAS.width / 2 - PLAYERS[0].rect.center.x) + (CANVAS.width / 2 - PLAYERS[1].rect.center.x)) / 2;
     let y = ((CANVAS.height / 2 - PLAYERS[0].rect.center.y) + (CANVAS.height / 2 - PLAYERS[1].rect.center.y)) / 2;
-    camera = camera.add(new Vector2(x, y).substract(camera));
+    let beforeCenter = camera.center;
+    camera.add(new Vector2(x, y));
+    camera.substract(beforeCenter)
 }
 
 
@@ -863,22 +886,25 @@ function drawPlatforms(){
 // draw all the PLATFORMS
 
     for (let i = 0; i < PLATFORMS.length; i++){
-        PLATFORMS[i].rect.move(camera);
-        PLATFORMS[i].draw();
+        PLATFORMS[i].rect.move(camera.center);
+        if (camera.rect.collidesWith(PLATFORMS[i].rect)){
+            PLATFORMS[i].draw();
+        }
     }
 }
 
 function drawCoins(){
     for (let i = 0; i < COINS.length; i++){
-        COINS[i].rect.move(camera);
-        COINS[i].draw();
-        let sound = Math.floor(Math.random() * 3);
+        COINS[i].rect.move(camera.center);
+        if (camera.rect.collidesWith(COINS[i].rect)){
+            COINS[i].draw();
+        }
     }
 }
 
 function drawPlayer(){
     for (let i = 0; i < PLAYERS.length; i++){
-        PLAYERS[i].rect.move(camera);
+        PLAYERS[i].rect.move(camera.center);
         PLAYERS[i].draw();
     }
 }
