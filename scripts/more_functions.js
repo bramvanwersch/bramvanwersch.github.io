@@ -1,13 +1,12 @@
 
 
 // TODO
-// 3. load unload properly
-// 4. add levels and or generate them
-// 5. add some environmental things
-// 6. crouching?
-// 7. pause functionality with quit and restart
-// 8. add camera for player2
-// fix sound loading bug when walking first with player 2 at innitial load
+//  3. load unload properly
+//  4. add levels and or generate them
+//  5. add some environmental things
+//  7. pause functionality with quit and restart
+//  8. add background sound that plays
+//  fix sound loading bug when walking first with player 2 at innitial load
 
 // loading textures and images
 
@@ -839,8 +838,8 @@ function loseStage(){
 }
 
 function updateCamera(){
-    let x = CANVAS.width / 2 - PLAYERS[0].rect.center.x;
-    let y = CANVAS.height / 2 - PLAYERS[0].rect.center.y;
+    let x = ((CANVAS.width / 2 - PLAYERS[0].rect.center.x) + (CANVAS.width / 2 - PLAYERS[1].rect.center.x)) / 2;
+    let y = ((CANVAS.height / 2 - PLAYERS[0].rect.center.y) + (CANVAS.height / 2 - PLAYERS[1].rect.center.y)) / 2;
     camera = camera.add(new Vector2(x, y).substract(camera));
 }
 
@@ -889,11 +888,13 @@ function drawUI(){
     CONTEXT.font = "30px Impact";
     CONTEXT.fillStyle = "black";
     CONTEXT.textAlign = "start"
-    CONTEXT.fillText(`${coinCounter[0]} / ${coinCounter[1]}`, 10, 40);
+    CONTEXT.fillText("Stage " + currentStage, 10, 35);
+    CONTEXT.fillText(`${coinCounter[0]} / ${coinCounter[1]}`, 10, 70);
+    let w = CONTEXT.measureText(`${coinCounter[0]} / ${coinCounter[1]}`).width
 
     let imagePos = COIN_TILESET.getTilePos(0);
     CONTEXT.drawImage(COIN_TILESET.image, imagePos[0], imagePos[1], COIN_TILESET.tileSize.x,
-                      COIN_TILESET.tileSize.y, 62, 10, 40, 40)
+                      COIN_TILESET.tileSize.y, w + 15, 40, 40, 40)
 
     for (let i = 0; i < BUTTONS.length; i++){
         BUTTONS[i].draw();
