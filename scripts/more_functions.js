@@ -7,6 +7,7 @@
 // 6. crouching?
 // 7. pause functionality with quit and restart
 // 8. add camera for player2
+// fix sound loading bug when walking first with player 2 at innitial load
 
 // loading textures and images
 
@@ -308,7 +309,7 @@ class Player extends GameObject{
         this.xke = 0;
         this.gpe = 0;  // gravitational potential energy
         // adjacent in order of bottom, left, top, rigth
-        this.objectAdjacentPlatforms = [null, null, null, null];
+        this.adjacentGameObjects = [null, null, null, null];
         this.lastJumpedPlatform = null;
         this.tileSet = tileSet;
         this.rTileSet = reverseTileSet;
@@ -332,7 +333,7 @@ class Player extends GameObject{
             tileIndex = 12;
         }
         // in the air
-        else if (this.objectAdjacentPlatforms[0] == null){
+        else if (this.adjacentGameObjects[0] == null){
             if (this.xke > 0){
                 tileIndex = 2;
             }
@@ -375,7 +376,7 @@ class Player extends GameObject{
 
     reset(){
         // reset certain values for the next frame
-        this.objectAdjacentPlatforms = [null, null, null, null];
+        this.adjacentGameObjects = [null, null, null, null];
     }
 
     move(){
@@ -391,13 +392,23 @@ class Player extends GameObject{
 
         // adjust x kinetic energy
         let resistance = 0;
-        if (this.objectAdjacentPlatforms[0] == null){
+        if (this.adjacentGameObjects[0] == null){
             resistance = MATERIALS["air"].resistance;
         }
         else{
-            resistance = this.objectAdjacentPlatforms[0].material.resistance;
+            resistance = this.adjacentGameObjects[0].material.resistance;
         }
         this.xke *= resistance;
+    }
+
+    onTopOf(player){
+        if (this.adjacentGameObjects[0] == null){
+            return false;
+        }
+        if (this.adjacentGameObjects[0].material.name == "player"){
+            return true;
+        }
+        return false;
     }
 
     handleBottemAdjacent(){
@@ -425,9 +436,10 @@ class Player extends GameObject{
 }
 
 class Material{
-    constructor(resistance, tileSet){
+    constructor(resistance, tileSet, name){
         this.resistance = resistance;
         this.tileSet = tileSet;
+        this.name = name;
     }
 }
 
@@ -496,10 +508,10 @@ GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0,
 const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8, new Vector2(0, 0));
 
 MATERIALS = {
-    "air": new Material(0.9, null),
-    "grass": new Material(0.8, GRASS_TILE_SET),
-    "player1": new Material(0.3, [PLAYER1_TILESET, R_PLAYER1_TILESET]),
-    "player2": new Material(0.3, [PLAYER2_TILESET, R_PLAYER2_TILESET]),
+    "air": new Material(0.9, null, "air"),
+    "grass": new Material(0.8, GRASS_TILE_SET, "grass"),
+    "player1": new Material(0.8, [PLAYER1_TILESET, R_PLAYER1_TILESET], "player"),
+    "player2": new Material(0.8, [PLAYER2_TILESET, R_PLAYER2_TILESET], "player"),
 }
 
 // these will be drawn depending on gamestate
@@ -563,7 +575,7 @@ function setupStage(values){
     PLAYERS = [];
     PLAYERS.push(new Player(stageData.player1[0], stageData.player1[1], 40, 70, 64, MATERIALS["player1"],
                  MATERIALS["player1"].tileSet[0], MATERIALS["player1"].tileSet[1]),
-                 new Player(stageData.player2[0], stageData.player2[1], 40, 70, 64, MATERIALS["player2"],
+                 new Player(stageData.player2[0], stageData.player2[1], 45, 90, 80, MATERIALS["player2"],
                  MATERIALS["player2"].tileSet[0], MATERIALS["player2"].tileSet[1]));
 
     PLATFORMS = [];
@@ -654,7 +666,7 @@ function processInput(){
         // player 1
         // A
         if (65 in keysDown){
-            if (PLAYERS[0].objectAdjacentPlatforms[0] != null){
+            if (PLAYERS[0].adjacentGameObjects[0] != null){
                 PLAYERS[0].xke -= 2;
             }
             else{
@@ -663,7 +675,7 @@ function processInput(){
         }
         // D
         if (68 in keysDown){
-            if (PLAYERS[0].objectAdjacentPlatforms[0] != null){
+            if (PLAYERS[0].adjacentGameObjects[0] != null){
                 PLAYERS[0].xke += 2;
             }
             else{
@@ -672,58 +684,58 @@ function processInput(){
         }
         // W
         if (87 in keysDown){
-            if (PLAYERS[0].objectAdjacentPlatforms[0] != null){
+            if (PLAYERS[0].adjacentGameObjects[0] != null){
                 PLAYERS[0].yke = 8;
                 JUMP_SOUND.play();
             }
-            else if (PLAYERS[0].objectAdjacentPlatforms[1] != null && !PLAYERS[0].objectAdjacentPlatforms[1].equals(PLAYERS[0].lastJumpedPlatform)){
+            else if (PLAYERS[0].adjacentGameObjects[1] != null && !PLAYERS[0].adjacentGameObjects[1].equals(PLAYERS[0].lastJumpedPlatform)){
                 PLAYERS[0].yke = 8;
                 PLAYERS[0].xke = -7;
-                PLAYERS[0].lastJumpedPlatform = PLAYERS[0].objectAdjacentPlatforms[1];
+                PLAYERS[0].lastJumpedPlatform = PLAYERS[0].adjacentGameObjects[1];
                 JUMP_SOUND.play();
             }
-            else if (PLAYERS[0].objectAdjacentPlatforms[3] != null && !PLAYERS[0].objectAdjacentPlatforms[3].equals(PLAYERS[0].lastJumpedPlatform)){
+            else if (PLAYERS[0].adjacentGameObjects[3] != null && !PLAYERS[0].adjacentGameObjects[3].equals(PLAYERS[0].lastJumpedPlatform)){
                 PLAYERS[0].yke = 8;
                 PLAYERS[0].xke = 7;
-                PLAYERS[0].lastJumpedPlatform = PLAYERS[0].objectAdjacentPlatforms[3];
+                PLAYERS[0].lastJumpedPlatform = PLAYERS[0].adjacentGameObjects[3];
                 JUMP_SOUND.play();
             }
         }
         // player 2
         // left
         if (37 in keysDown){
-            if (PLAYERS[1].objectAdjacentPlatforms[0] != null){
-                PLAYERS[1].xke -= 2;
+            if (PLAYERS[1].adjacentGameObjects[0] != null){
+                PLAYERS[1].xke -= 2.5;
             }
             else{
-                PLAYERS[1].xke -= 0.75;
+                PLAYERS[1].xke -= 0.8;
             }
         }
         // right
         if (39 in keysDown){
-            if (PLAYERS[1].objectAdjacentPlatforms[0] != null){
-                PLAYERS[1].xke += 2;
+            if (PLAYERS[1].adjacentGameObjects[0] != null){
+                PLAYERS[1].xke += 2.5;
             }
             else{
-                PLAYERS[1].xke += 0.75;
+                PLAYERS[1].xke += 0.8;
             }
         }
         // up
         if (38 in keysDown){
-            if (PLAYERS[1].objectAdjacentPlatforms[0] != null){
+            if (PLAYERS[1].adjacentGameObjects[0] != null){
                 PLAYERS[1].yke = 8;
                 JUMP_SOUND.play();
             }
-            else if (PLAYERS[1].objectAdjacentPlatforms[1] != null && !PLAYERS[1].objectAdjacentPlatforms[1].equals(PLAYERS[1].lastJumpedPlatform)){
+            else if (PLAYERS[1].adjacentGameObjects[1] != null && !PLAYERS[1].adjacentGameObjects[1].equals(PLAYERS[1].lastJumpedPlatform)){
                 PLAYERS[1].yke = 8;
                 PLAYERS[1].xke = -7;
-                PLAYERS[1].lastJumpedPlatform = PLAYERS[1].objectAdjacentPlatforms[1];
+                PLAYERS[1].lastJumpedPlatform = PLAYERS[1].adjacentGameObjects[1];
                 JUMP_SOUND.play();
             }
-            else if (PLAYERS[1].objectAdjacentPlatforms[3] != null && !PLAYERS[1].objectAdjacentPlatforms[3].equals(PLAYERS[1].lastJumpedPlatform)){
+            else if (PLAYERS[1].adjacentGameObjects[3] != null && !PLAYERS[1].adjacentGameObjects[3].equals(PLAYERS[1].lastJumpedPlatform)){
                 PLAYERS[1].yke = 8;
                 PLAYERS[1].xke = 7;
-                PLAYERS[1].lastJumpedPlatform = PLAYERS[1].objectAdjacentPlatforms[3];
+                PLAYERS[1].lastJumpedPlatform = PLAYERS[1].adjacentGameObjects[3];
                 JUMP_SOUND.play();
             }
         }
@@ -734,10 +746,8 @@ function processInput(){
 function handleCollision(obj){
     // check for collision and adjust per side
     checkGameObjectCollission(obj);
-    let hasCollided = false;
     for (let index = 0; index < 4; index++){
-        if (obj.objectAdjacentPlatforms[index] != null){
-            hasCollided = true;
+        if (obj.adjacentGameObjects[index] != null){
             switch (index){
             case 0:
                 obj.handleBottemAdjacent();
@@ -765,14 +775,36 @@ function checkGameObjectCollission(obj){
     for (let i = 0; i < PLATFORMS.length; i++){
         if (obj.rect.collidesWith(PLATFORMS[i].rect)){
             let collisionValues = obj.collideWithObject(PLATFORMS[i]);
-            obj.objectAdjacentPlatforms[collisionValues[0]] = collisionValues[1];
+            obj.adjacentGameObjects[collisionValues[0]] = collisionValues[1];
         }
         minx = Math.min(minx, PLATFORMS[i].rect.left);
         miny = Math.min(miny, PLATFORMS[i].rect.top);
         maxx = Math.max(maxx, PLATFORMS[i].rect.rigth);
         maxy = Math.max(maxy, PLATFORMS[i].rect.bottom);
     }
-    // if either player dies lose stage
+
+    if (PLAYERS[0].onTopOf(PLAYERS[1])){
+        PLAYERS[0].rect.bottom = PLAYERS[1].rect.top;
+        PLAYERS[0].rect.left += PLAYERS[1].xke;
+    }
+    else if (PLAYERS[1].onTopOf(PLAYERS[0])){
+        PLAYERS[1].rect.bottom = PLAYERS[0].rect.top;
+        PLAYERS[1].rect.left += PLAYERS[0].xke;
+    }
+
+    // check player collisions
+    for (let i = 0; i < PLAYERS.length; i++){
+        if (obj == PLAYERS[i]){
+            continue;
+        }
+        if (obj.rect.collidesWith(PLAYERS[i].rect)){
+            let collisionValues = obj.collideWithObject(PLAYERS[i]);
+            obj.adjacentGameObjects[collisionValues[0]] = collisionValues[1];
+        }
+    }
+
+
+    // if either player goes of the stage loose
     if (PLAYERS[0].rect.xcoord < minx - 250 || PLAYERS[0].rect.xcoord > maxx + 250 || PLAYERS[0].rect.ycoord < miny - 250 || PLAYERS[0].rect.ycoord > maxy + 250){
         loseStage();
     }
