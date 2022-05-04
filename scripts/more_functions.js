@@ -3,9 +3,8 @@
 // TODO
 //  4. add levels and or generate them
 //  5. add some environmental things
-//  7. pause functionality with quit and restart
 //  8. add background sound that plays
-//  fix sound loading bug when walking first with player 2 at innitial load
+//  9. fix sound loading bug when walking first with player 2 at innitial load
 
 // loading textures and images
 
@@ -165,10 +164,11 @@ class Button{
     draw(){
         CONTEXT.lineWidth = 5;
         // function is at the bottom
-        roundRect(this.rect.xcoord, this.rect.ycoord, this.rect.width, 50);
+        CONTEXT.fillStyle = "white";
+        roundRect(this.rect.xcoord, this.rect.ycoord, this.rect.width, 50, 5, true);
 
         CONTEXT.font = "30px Impact";
-        CONTEXT.fillStyle = "white";
+        CONTEXT.fillStyle = "black";
         CONTEXT.textAlign = "center"
         CONTEXT.fillText(this.text, this.rect.xcoord + this.rect.width / 2, this.rect.ycoord + 35);
     }
@@ -295,7 +295,8 @@ class Coin extends GameObject{
 const GAME_STATES = {
     ALIVE: "a",
     DEAD: "d",
-    WIN: "w"
+    WIN: "w",
+    PAUSED: "p"
 }
 
 class Player extends GameObject{
@@ -544,6 +545,7 @@ var PLAYERS = [null, null];
 var gameState = GAME_STATES.ALIVE;
 
 var keysDown = {};
+var keysPressed = {}; // pressed this frame
 var camera = null;
 
 var coinCounter = [0, 1];  // current, total
@@ -553,14 +555,32 @@ var totalFrames = 0;
 
 const STAGES = [
     {
-        player1: [0, 0],
-        player2: [-100, 0],
-        platforms: [[-500, 50, 1100, 50, "grass"],
-                    [800, -400, 50, 300, "grass"],
-                    [1000, -400, 50, 500, "grass"],
-                    [800, 50, 250, 50, "grass"],
-                    [0, 180, 800, 50, "grass"]],
-        coins: [[-500, 0], [0, 130], [750, -400], [750, -300], [750, -200]]
+        player1: [-50, 0],
+        player2: [50, 0],
+        platforms: [[-100, 50, 300, 50, "grass"],
+                    [200, -200, 50, 300, "grass"],
+                    [-200, 200, 1500, 50, "grass"],
+                    [-250, -300, 50, 550, "grass"],
+                    [250, -200, 1050, 50, "grass"],
+                    [1300, -300, 50, 550, "grass"]],
+        coins: [[200, -250], [600, -250], [1000, -250],
+                [200, 150], [600, 150], [1000, 150]]
+    },
+    {
+        player1: [-100, 0],
+        player2: [100, 0],
+        platforms: [[-150, 500, 350, 50, "grass"],
+                    [0, 0, 50, 500, "grass"],
+                    [-200, 300, 50, 250, "grass"],
+                    [200, 300, 50, 250, "grass"],
+                    [-600, 300, 400, 50, "grass"],
+                    [250, 300, 400, 50, "grass"],
+                    [-600, -400, 50, 750, "grass"],
+                    [-400, -200, 50, 400, "grass"],
+                    [650, -400, 50, 750, "grass"],
+                    [450, -200, 50, 400, "grass"],
+                    [-350, -200, 800, 50, "grass"]],
+        coins: [[-500, 200], [550, 200], [0, -500]]
     },
     {
         player1: [0, 0],
@@ -595,7 +615,7 @@ function setupStage(values){
     PLAYERS = [];
     PLAYERS.push(new Player(stageData.player1[0], stageData.player1[1], 40, 70, 64, MATERIALS["player1"],
                  MATERIALS["player1"].tileSet[0], MATERIALS["player1"].tileSet[1]),
-                 new Player(stageData.player2[0], stageData.player2[1], 45, 90, 80, MATERIALS["player2"],
+                 new Player(stageData.player2[0], stageData.player2[1], 45, 90, 64, MATERIALS["player2"],
                  MATERIALS["player2"].tileSet[0], MATERIALS["player2"].tileSet[1]));
 
     PLATFORMS = [];
@@ -616,7 +636,11 @@ function setupStage(values){
 
 function main(){
     processInput();
-    if (gameState == GAME_STATES.ALIVE){
+    resetPressedKeys();
+    if (gameState == GAME_STATES.PAUSED){
+        draw();
+    }
+    else if (gameState == GAME_STATES.ALIVE){
         // loop function
         // do this for all moving objects later
         for (let i = 0; i < PLAYERS.length; i++){
@@ -624,8 +648,8 @@ function main(){
             PLAYERS[i].move();
         }
         updateCamera();
-        draw();
         totalFrames += 1;
+        draw();
     }
     else if (gameState == GAME_STATES.WIN){
         draw();
@@ -655,15 +679,15 @@ function notifyText(text){
     }
     fontSize += fontChange;
     CONTEXT.font = fontSize + "px Impact";
-    CONTEXT.fillStyle = "darkred";
+    CONTEXT.fillStyle = "black";
     CONTEXT.textAlign = "center";
     CONTEXT.fillText(text, CANVAS.width/2, CANVAS.height/2);
 }
 
 
 function processInput(){
-    // A
-    if (gameState == GAME_STATES.DEAD || gameState == GAME_STATES.WIN){
+
+    if (gameState == GAME_STATES.DEAD || gameState == GAME_STATES.WIN || gameState == GAME_STATES.PAUSED){
         // quite lazy, will cause lots of troubles if extended on
         if (8 in keysDown){ // backspace
             for (let i = 0; i < BUTTONS.length; i++){
@@ -673,12 +697,17 @@ function processInput(){
                 }
             }
         }
-        if (32 in keysDown){ // space
+        if (13 in keysDown){ // enter
             for (let i = 0; i < BUTTONS.length; i++){
                 if (BUTTONS[i].text == "Next"){
                    BUTTONS[i].click();
                    return;
                 }
+            }
+        }
+        if (gameState == GAME_STATES.PAUSED){
+            if (27 in keysPressed){ // escape --> unpause
+                unpauseStage();
             }
         }
     }
@@ -759,6 +788,9 @@ function processInput(){
                 JUMP_SOUND.play();
             }
         }
+        if (27 in keysPressed){ // escape
+            pauseStage();
+        }
     }
 }
 
@@ -787,9 +819,7 @@ function handleCollision(obj){
 }
 
 function checkGameObjectCollission(obj){
-    let minx = 0;
     let miny = 0;
-    let maxx = 0;
     let maxy = 0;
     // check for collission and set the adjacent sides when colliding
     for (let i = 0; i < PLATFORMS.length; i++){
@@ -797,9 +827,7 @@ function checkGameObjectCollission(obj){
             let collisionValues = obj.collideWithObject(PLATFORMS[i]);
             obj.adjacentGameObjects[collisionValues[0]] = collisionValues[1];
         }
-        minx = Math.min(minx, PLATFORMS[i].rect.left);
         miny = Math.min(miny, PLATFORMS[i].rect.top);
-        maxx = Math.max(maxx, PLATFORMS[i].rect.rigth);
         maxy = Math.max(maxy, PLATFORMS[i].rect.bottom);
     }
 
@@ -825,10 +853,10 @@ function checkGameObjectCollission(obj){
 
 
     // if either player goes of the stage loose
-    if (PLAYERS[0].rect.xcoord < minx - 250 || PLAYERS[0].rect.xcoord > maxx + 250 || PLAYERS[0].rect.ycoord < miny - 250 || PLAYERS[0].rect.ycoord > maxy + 250){
+    if (PLAYERS[0].rect.ycoord > maxy + 250){
         loseStage();
     }
-    if (PLAYERS[1].rect.xcoord < minx - 250 || PLAYERS[1].rect.xcoord > maxx + 250 || PLAYERS[1].rect.ycoord < miny - 250 || PLAYERS[1].rect.ycoord > maxy + 250){
+    if (PLAYERS[1].rect.ycoord > maxy + 250){
         loseStage();
     }
     // check coin collision
@@ -856,6 +884,24 @@ function loseStage(){
     gameState = GAME_STATES.DEAD;
     DEATH_SOUND.play();
     BUTTONS.push(new Button(CANVAS.width / 2, CANVAS.height / 2 + 100, "Retry", setupStage, [currentStage, true]));
+}
+
+function pauseStage(){
+    gameState = GAME_STATES.PAUSED;
+    BUTTONS.push(new Button(CANVAS.width / 2, CANVAS.height / 2 - 200, "Resume", unpauseStage, []));
+    BUTTONS.push(new Button(CANVAS.width / 2, CANVAS.height / 2 - 100, "Retry", setupStage, [currentStage, true]));
+    BUTTONS.push(new Button(CANVAS.width / 2, CANVAS.height / 2, "Back", backToIndex, []));
+}
+
+function unpauseStage(){
+    if (gameState == GAME_STATES.PAUSED){
+        gameState = GAME_STATES.ALIVE;
+        BUTTONS = []; // might be problematic
+    }
+}
+
+function backToIndex(){
+    window.location.href = "index.html";
 }
 
 function updateCamera(){
@@ -931,6 +977,7 @@ function drawUI(){
 // global event listeners
 window.addEventListener("keydown", function(event){
     keysDown[event.keyCode] = true;
+    keysPressed[event.keyCode] = true;
 });
 
 window.addEventListener("keyup", function(event){
@@ -952,6 +999,10 @@ function clickMouse(event) {
             BUTTONS[i].click();
         }
     }
+}
+
+function resetPressedKeys(){
+    keysPressed = {};
 }
 
 // make sure that the main function is running
