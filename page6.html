@@ -11,19 +11,26 @@
     <div class="sidenav">
         <div class="container-fluid doodle-border">
             <div class="two_column">
-                <div class="column_item" style="color:white;">Background</div>
+                <div class="column_item" style="color:white;">Background:</div>
                 <button id="new_platform_button">New platform</button>
             </div>
             <div class="two_column">
                 <select id="background_select" class="column_item"></select>
             </div>
         </div>
-        <div class="container-fluid doodle-border">
-            <div class="two_column">
-                <hr class="solid column_item">
-            </div>
-            <div class="two_column">
-                <hr class="solid column_item">
+        <div id="selected_widget_group" style="visibility:hidden;">
+            <hr class="solid column_item" style="margin-top:200px; margin-right:10px">
+            <div style="color:white;">Selected Platform info:</div>
+            <hr class="solid column_item" style="margin-top:20px; margin-right:10px">
+            <div class="container-fluid doodle-border">
+                <div class="two_column_imbalanced2">
+                    <div class="column_item" style="color:white;">Width:</div>
+                    <div class="column_item" style="color:white;">Heigth:</div>
+                </div>
+                <div class="two_column_imbalanced1">
+                    <input style="margin-bottom:10px;" type="number" id="selected_width" name="quantity" min="50" step="50" width="10">
+                    <input style="margin-bottom:10px;" type="number" id="selected_height" name="quantity" min="50" step="50" width="10">
+                </div>
             </div>
         </div>
     </div>

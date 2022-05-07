@@ -22,6 +22,8 @@ var mouseLocation = new Vector2(0, 0);
 var isMouseDown = false;
 var selectOffset = new Vector2(0, 0);
 
+var selecedWidgets = document.getElementById("selected_widget_group");
+
 
 class Platform{
     constructor(x, y, w, h){
@@ -138,6 +140,9 @@ function clickMouseDown(event) {
     let rect = CANVAS.getBoundingClientRect();
     let x = event.clientX - rect.left;
     let y = event.clientY - rect.top;
+    if (x > CANVAS.width){
+        return;
+    }
 
     isMouseDown = true;
     for (let i = 0; i < PLATFORMS.length; i++){
@@ -145,10 +150,12 @@ function clickMouseDown(event) {
         if (pltf.rect.collidesWith(new Rectangle(x, y, 1, 1))){
             selectOffset = new Vector2(x - pltf.rect.left, y - pltf.rect.top);
             SELECTED_PLAFORM = pltf;
+            selecedWidgets.style.visibility = "visible";
             return;
         }
     }
     SELECTED_PLAFORM = null;
+    selecedWidgets.style.visibility = "hidden";
 }
 
 function moveMouse(event){
@@ -170,4 +177,4 @@ const backgroundSelect = document.getElementById("background_select");
 backgroundSelect.addEventListener('change', changeBackground);
 
 const platformButton = document.getElementById("new_platform_button");
-platformButton.addEventListener("click", addPlatform)
+platformButton.addEventListener("click", addPlatform);

@@ -31,6 +31,20 @@ body {
     float: left;
     margin:0;
     width:50%;
+    text-align: left;
+}
+
+.two_column_imbalanced1 {
+    float: left;
+    margin:0;
+    width:70%;
+    text-align: left;
+}
+
+.two_column_imbalanced2 {
+    float: left;
+    margin:0;
+    width:30%;
     text-align: center;
 }
 
