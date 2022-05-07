@@ -3,17 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <title>development</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="static/develop_style.css"/>
 </head>
 <body>
     <!-- Side navigation -->
     <div class="sidenav">
-
+        <div class="container-fluid doodle-border">
+            <div class="two_column">
+                <div class="column_item" style="color:white;">Background</div>
+                <button id="new_platform_button">New platform</button>
+            </div>
+            <div class="two_column">
+                <select id="background_select" class="column_item"></select>
+            </div>
+        </div>
+        <div class="container-fluid doodle-border">
+            <div class="two_column">
+                <hr class="solid column_item">
+            </div>
+            <div class="two_column">
+                <hr class="solid column_item">
+            </div>
+        </div>
     </div>
     <div id="main">
         <canvas id="canvas" ></canvas>
     </div>
 
 </body>
-    <script type = "text/javascript" src = "scripts/develop_functions.js" ></script>
+    <script type = "module" src = "scripts/develop_functions.js" ></script>
 </html>

@@ -1,3 +1,5 @@
+import * as read_data from "./read_data.js"
+import { Rectangle, Vector2 } from "./rectangle.js"
 
 
 // TODO
@@ -7,40 +9,30 @@
 //  9. fix sound loading bug when walking first with player 2 at innitial load
 
 // loading textures and images
+let loadImage = read_data.loadImage
+let loadSound = read_data.loadSound
 
-function loadImage(source){
-    let img = new Image();
-    img.src = "data/assets/images/" + source;
-    return img;
-}
 
-function loadSound(source){
-    let sound = new Audio("data/assets/sounds/" + source);
-    sound.preload = 'auto';
-    sound.load();
-    return sound;
-}
-
-var MOUNTAIN_IMAGE = loadImage("mountains_background.png");
-var TILES_IMAGE = loadImage("tiles_spritesheet.png");
-var COIN_IMAGES = loadImage("coins.png");
-var P1_TILES = loadImage("p1_spritesheet.png");
-var P1_TILES_REVERSE = loadImage("p1_spritesheet_reverse.png");
-var P2_TILES = loadImage("p2_spritesheet.png");
-var P2_TILES_REVERSE = loadImage("p2_spritesheet_reverse.png");
+var MOUNTAIN_IMAGE = read_data.loadImage("backgrounds/mountains_background.png");
+var TILES_IMAGE = read_data.loadImage("tiles_spritesheet.png");
+var COIN_IMAGES = read_data.loadImage("coins.png");
+var P1_TILES = read_data.loadImage("p1_spritesheet.png");
+var P1_TILES_REVERSE = read_data.loadImage("p1_spritesheet_reverse.png");
+var P2_TILES = read_data.loadImage("p2_spritesheet.png");
+var P2_TILES_REVERSE = read_data.loadImage("p2_spritesheet_reverse.png");
 
 // sounds
-var COIN_SOUNDS = [loadSound("coin1.wav"), loadSound("coin2.wav"), loadSound("coin3.wav")];
-var JUMP_SOUND = loadSound("jump.wav");
+var COIN_SOUNDS = [read_data.loadSound("coin1.wav"), read_data.loadSound("coin2.wav"), read_data.loadSound("coin3.wav")];
+var JUMP_SOUND = read_data.loadSound("jump.wav");
 JUMP_SOUND.volume = 0.1;
 JUMP_SOUND.playbackRate = 1.5;
-var DEATH_SOUND = loadSound("death.wav");
-var WIN_SOUND = loadSound("win.wav");
-var STEP_SOUND1 = loadSound("step1.wav");
+var DEATH_SOUND = read_data.loadSound("death.wav");
+var WIN_SOUND = read_data.loadSound("win.wav");
+var STEP_SOUND1 = read_data.loadSound("step1.wav");
 STEP_SOUND1.volume = 0.1;
-var STEP_SOUND2 = loadSound("step2.wav");
+var STEP_SOUND2 = read_data.loadSound("step2.wav");
 STEP_SOUND2.volume = 0.1;
-var START_STAGE_SOUND = loadSound("start_stage.wav");
+var START_STAGE_SOUND = read_data.loadSound("start_stage.wav");
 
 
 const WORLD_HEIGHT = 800;
@@ -48,108 +40,6 @@ const WORLD_HEIGHT = 800;
 
 // CLASSES
 
-class Vector2{
-    constructor(x, y){
-        this.x = x;
-        this.y = y;
-    }
-
-    add(otherVector){
-        return new Vector2(this.x + otherVector.x, this.y + otherVector.y);
-    }
-
-    substract(otherVector){
-        return new Vector2(this.x - otherVector.x, this.y - otherVector.y);
-    }
-
-    multiply(value){
-        return new Vector2(this.x * value, this.y * value);
-    }
-}
-
-
-class Rectangle{
-    constructor(x, y, w, h){
-        this.xcoord = x;
-        this.ycoord = y;
-        this.width = w;
-        this.height = h;
-    }
-
-    get rigth(){
-        return this.xcoord + this.width;
-    }
-
-    set rigth(value){
-        this.xcoord = value - this.width;
-    }
-
-    get left(){
-        return this.xcoord;
-    }
-
-    set left(value){
-        this.xcoord = value;
-    }
-
-    get bottom(){
-        return this.ycoord + this.height;
-    }
-
-    set bottom(value){
-        this.ycoord = value - this.height;
-    }
-
-    get top(){
-        return this.ycoord;
-    }
-
-    set top(value){
-        this.ycoord = value;
-    }
-
-    get center(){
-        return new Vector2(this.xcoord + 0.5 * this.width, this.ycoord + 0.5 * this.height);
-    }
-
-    collidesWith(rect){
-        if (this.left >= rect.rigth){
-            return false;
-        }
-        if (this.rigth <= rect.left){
-            return false;
-        }
-        if (this.top >= rect.bottom){
-            return false;
-        }
-        if (this.bottom <= rect.top){
-            return false;
-        }
-        return true;
-    }
-
-    move(vector){
-        this.xcoord += vector.x;
-        this.ycoord += vector.y;
-    }
-
-    equals(otherRect){
-        if (otherRect.xcoord != this.xcoord){
-            return false;
-        }
-        if (otherRect.ycoord != this.ycoord){
-            return false;
-        }
-        if (otherRect.width != this.width){
-            return false;
-        }
-        if (otherRect.height != this.height){
-            return false;
-        }
-        return true;
-    }
-
-}
 
 class Button{
     constructor(x, y, text, callable, args){
@@ -165,12 +55,12 @@ class Button{
         CONTEXT.lineWidth = 5;
         // function is at the bottom
         CONTEXT.fillStyle = "white";
-        roundRect(this.rect.xcoord, this.rect.ycoord, this.rect.width, 50, 5, true);
+        roundRect(this.rect.x, this.rect.y, this.rect.width, 50, 5, true);
 
         CONTEXT.font = "30px Impact";
         CONTEXT.fillStyle = "black";
         CONTEXT.textAlign = "center"
-        CONTEXT.fillText(this.text, this.rect.xcoord + this.rect.width / 2, this.rect.ycoord + 35);
+        CONTEXT.fillText(this.text, this.rect.x + this.rect.width / 2, this.rect.y + 35);
     }
 
     click(){
@@ -266,7 +156,7 @@ class Platform extends GameObject{
                 }
                 let imagePos = this.tileSet.getTilePos(tileIndex);
                 CONTEXT.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize.x,
-                                  this.tileSet.tileSize.y, this.rect.xcoord + x, this.rect.ycoord + y, 51, 51)
+                                  this.tileSet.tileSize.y, this.rect.x + x, this.rect.y + y, 51, 51)
             }
         }
     }
@@ -287,7 +177,7 @@ class Coin extends GameObject{
         let imagePos = this.tileSet.getTilePos(frameIndex);
 
         CONTEXT.drawImage(this.tileSet.image, imagePos[0], imagePos[1], this.tileSet.tileSize.x,
-                          this.tileSet.tileSize.y, this.rect.xcoord, this.rect.ycoord, COIN_SIZE, COIN_SIZE)
+                          this.tileSet.tileSize.y, this.rect.x, this.rect.y, COIN_SIZE, COIN_SIZE)
 
     }
 }
@@ -356,7 +246,7 @@ class Player extends GameObject{
         }
         let imagePos = tileSet.getTilePos(tileIndex);
         CONTEXT.drawImage(tileSet.image, imagePos[0], imagePos[1], tileSet.tileSize.x,
-                          tileSet.tileSize.y, this.rect.xcoord - 10, this.rect.ycoord - 10, this.rect.width + 20,
+                          tileSet.tileSize.y, this.rect.x - 10, this.rect.y - 10, this.rect.width + 20,
                           this.rect.height + 10)
     }
 
@@ -380,8 +270,8 @@ class Player extends GameObject{
 
     move(){
         // move based on kinetic energy
-        this.rect.ycoord -= this.yke;
-        this.rect.xcoord += this.xke;
+        this.rect.y -= this.yke;
+        this.rect.x += this.xke;
 
         handleCollision(this);
 
@@ -429,7 +319,7 @@ class Player extends GameObject{
 
     calcGpe() {
         // because pixels divide
-        return this.mass * (9.8 / 1000000) * ((WORLD_HEIGHT - this.rect.height) - (this.rect.ycoord / 32));  // last 32 is a smoothing parameter
+        return this.mass * (9.8 / 1000000) * ((WORLD_HEIGHT - this.rect.height) - (this.rect.y / 32));  // last 32 is a smoothing parameter
     }
 
 }
@@ -525,10 +415,10 @@ const PLAYER1_TILESET = new TileSet(P1_TILES, new Vector2(73, 97), 7, new Vector
 const R_PLAYER1_TILESET = new TileSet(P1_TILES_REVERSE, new Vector2(73, 97), 7, new Vector2(-2, 0))
 const PLAYER2_TILESET = new TileSet(P2_TILES, new Vector2(70, 94), 7, new Vector2(1, 0))
 const R_PLAYER2_TILESET = new TileSet(P2_TILES_REVERSE, new Vector2(70, 94), 7, new Vector2(3, 0))
-GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
+const GRASS_TILE_SET = new TileSet(TILES_IMAGE, new Vector2(70, 70), 8, new Vector2(0, 0));
 const COIN_TILESET = new TileSet(COIN_IMAGES, new Vector2(16, 16), 8, new Vector2(0, 0));
 
-MATERIALS = {
+const MATERIALS = {
     "air": new Material(0.9, null, "air"),
     "grass": new Material(0.8, GRASS_TILE_SET, "grass"),
     "player1": new Material(0.8, [PLAYER1_TILESET, R_PLAYER1_TILESET], "player"),
@@ -853,10 +743,10 @@ function checkGameObjectCollission(obj){
 
 
     // if either player goes of the stage loose
-    if (PLAYERS[0].rect.ycoord > maxy + 250){
+    if (PLAYERS[0].rect.y > maxy + 250){
         loseStage();
     }
-    if (PLAYERS[1].rect.ycoord > maxy + 250){
+    if (PLAYERS[1].rect.y > maxy + 250){
         loseStage();
     }
     // check coin collision
