@@ -12,6 +12,7 @@ const CANVAS = document.getElementById("canvas");
 const CONTEXT = CANVAS.getContext("2d");
 var PLATFORMS = [];
 var SELECTED_PLAFORM = null;
+var idCount = 0;
 
 var backgroundImage = null;
 
@@ -25,6 +26,9 @@ var selectOffset = new Vector2(0, 0);
 class Platform{
     constructor(x, y, w, h){
         this.rect = new Rectangle(x, y, w, h);
+        this.id = idCount;
+        idCount += 1;
+
     }
 }
 
@@ -91,6 +95,11 @@ function drawPlatforms(){
         CONTEXT.beginPath();
         CONTEXT.rect(rect.x, rect.y, rect.width, rect.height);
         CONTEXT.fill();
+        if (SELECTED_PLAFORM != null && PLATFORMS[i].id == SELECTED_PLAFORM.id){
+            CONTEXT.strokeStyle  = "red";
+            CONTEXT.lineWidth = 5;
+            CONTEXT.stroke();
+        }
     }
 }
 
