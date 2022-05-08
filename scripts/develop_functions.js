@@ -74,22 +74,22 @@ function processInput(){
     if (SELECTED_PLAFORM_INDEX != null){
         // arrow up
         let updateSelectedWidget = false;
-        if ("ArrowUp" in keysDown){
+        if ("ArrowUp" in keysPressed){
             PLATFORMS[SELECTED_PLAFORM_INDEX].rect.y -= 1;
             updateSelectedWidget = true;
         }
         // arrow down
-        if ("ArrowDown" in keysDown){
+        if ("ArrowDown" in keysPressed){
             PLATFORMS[SELECTED_PLAFORM_INDEX].rect.y += 1;
             updateSelectedWidget = true;
         }
         // arrow left
-        if ("ArrowLeft" in keysDown){
+        if ("ArrowLeft" in keysPressed){
             PLATFORMS[SELECTED_PLAFORM_INDEX].rect.x -= 1;
             updateSelectedWidget = true;
         }
         // arrow right
-        if ("ArrowRight" in keysDown){
+        if ("ArrowRight" in keysPressed){
             PLATFORMS[SELECTED_PLAFORM_INDEX].rect.x += 1;
             updateSelectedWidget = true;
         }
@@ -166,14 +166,17 @@ function drawBackground(){
 function drawPlatforms(){
     for (let i = 0; i < PLATFORMS.length; i++){
         let rect = PLATFORMS[i].rect;
-        CONTEXT.beginPath();
-        CONTEXT.rect(rect.x, rect.y, rect.width, rect.height);
-        CONTEXT.fill();
-        if (SELECTED_PLAFORM_INDEX != null && i == SELECTED_PLAFORM_INDEX){
-            CONTEXT.strokeStyle  = "red";
-            CONTEXT.lineWidth = 2;
-            CONTEXT.stroke();
+        if (i == SELECTED_PLAFORM_INDEX){
+            continue
         }
+        else{
+            CONTEXT.fillRect(rect.x, rect.y, rect.width, rect.height);
+        }
+    }
+    if (SELECTED_PLAFORM_INDEX != null){
+        let rect = PLATFORMS[SELECTED_PLAFORM_INDEX].rect;
+        CONTEXT.fillStyle = "red";
+        CONTEXT.fillRect(rect.x, rect.y, rect.width, rect.height);
     }
 }
 
