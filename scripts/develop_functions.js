@@ -10,7 +10,7 @@ import { Rectangle, Vector2 } from "./rectangle.js"
 const CANVAS = document.getElementById("canvas");
 const CONTEXT = CANVAS.getContext("2d");
 var PLATFORMS = [];
-var SELECTED_PLAFORM = null;
+var SELECTED_PLAFORM_INDEX = null;
 var idCount = 0;
 
 var backgroundImage = null;
@@ -53,7 +53,7 @@ function changeBackground(){
 }
 
 function addPlatform(){
-    PLATFORMS.push(new Platform(0, 0, 100, 100));
+    PLATFORMS.push(new Platform(0, 0, 50, 50));
 }
 
 function main(){
@@ -65,35 +65,66 @@ function main(){
 
 function processInput(){
     if (isMouseDown){
-        if (SELECTED_PLAFORM != null){
-            SELECTED_PLAFORM.rect.left = mouseLocation.x - selectOffset.x;
-            SELECTED_PLAFORM.rect.top = mouseLocation.y - selectOffset.y;
+        if (SELECTED_PLAFORM_INDEX != null){
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.left = mouseLocation.x - selectOffset.x;
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.top = mouseLocation.y - selectOffset.y;
         }
         setSelectedWidgetsInfo();
     }
-    if (SELECTED_PLAFORM != null){
+    if (SELECTED_PLAFORM_INDEX != null){
         // arrow up
-        if (38 in keysDown){
-            SELECTED_PLAFORM.rect.y -= 1;
-            setSelectedWidgetsInfo();
+        let updateSelectedWidget = false;
+        if ("ArrowUp" in keysDown){
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.y -= 1;
+            updateSelectedWidget = true;
         }
         // arrow down
-        if (40 in keysDown){
-            SELECTED_PLAFORM.rect.y += 1;
-            setSelectedWidgetsInfo();
+        if ("ArrowDown" in keysDown){
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.y += 1;
+            updateSelectedWidget = true;
         }
         // arrow left
-        if (37 in keysDown){
-            SELECTED_PLAFORM.rect.x -= 1;
-            setSelectedWidgetsInfo();
+        if ("ArrowLeft" in keysDown){
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.x -= 1;
+            updateSelectedWidget = true;
         }
         // arrow right
-        if (39 in keysDown){
-            SELECTED_PLAFORM.rect.x += 1;
-            setSelectedWidgetsInfo();
+        if ("ArrowRight" in keysDown){
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.x += 1;
+            updateSelectedWidget = true;
         }
-        if (27 in keysDown){
+        // change width
+        if ("+" in keysPressed){
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width += 50;
+            updateSelectedWidget = true;
+        }
+        if ("_" in keysPressed){
+            if (PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width > 50){
+                PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width -= 50;
+            }
+        }
+
+        // change height
+        if ("=" in keysPressed){
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height += 50;
+            updateSelectedWidget = true;
+        }
+        if ("-" in keysPressed){
+            if (PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height > 50){
+                PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height -= 50;
+            }
+        }
+
+
+        if ("Delete" in keysDown){
+
+        }
+        if ("Escape" in keysDown){
             deselectPlatform();
+        }
+
+        if (updateSelectedWidget){
+            setSelectedWidgetsInfo();
         }
     }
 }
@@ -119,7 +150,7 @@ function drawPlatforms(){
         CONTEXT.beginPath();
         CONTEXT.rect(rect.x, rect.y, rect.width, rect.height);
         CONTEXT.fill();
-        if (SELECTED_PLAFORM != null && PLATFORMS[i].id == SELECTED_PLAFORM.id){
+        if (SELECTED_PLAFORM_INDEX != null && i == SELECTED_PLAFORM_INDEX){
             CONTEXT.strokeStyle  = "red";
             CONTEXT.lineWidth = 2;
             CONTEXT.stroke();
@@ -130,12 +161,12 @@ function drawPlatforms(){
 
 // global event listeners
 window.addEventListener("keydown", function(event){
-    keysDown[event.keyCode] = true;
-    keysPressed[event.keyCode] = true;
+    keysDown[event.key] = true;
+    keysPressed[event.key] = true;
 });
 
 window.addEventListener("keyup", function(event){
-    delete keysDown[event.keyCode];
+    delete keysDown[event.key];
 });
 
 
@@ -171,40 +202,44 @@ function clickMouseDown(event) {
         let pltf = PLATFORMS[i];
         if (pltf.rect.collidesWith(new Rectangle(x, y, 1, 1))){
             selectOffset = new Vector2(x - pltf.rect.left, y - pltf.rect.top);
-            selectPlatform(pltf);
+            selectPlatform(i);
             return;
         }
     }
     deselectPlatform();
 }
 
-function selectPlatform(platform){
-    if (SELECTED_PLAFORM != null && platform.id == SELECTED_PLAFORM.id){
+function selectPlatform(index){
+    if (SELECTED_PLAFORM_INDEX != null && index == SELECTED_PLAFORM_INDEX){
         return;
     }
-    SELECTED_PLAFORM = platform;
+    SELECTED_PLAFORM_INDEX = index;
     // change visibility of the platform change menu
-    selecedWidgets.style.visibility = "visible";
+    selectedWidgets.style.visibility = "visible";
     setSelectedWidgetsInfo();
 }
 
 function setSelectedWidgetsInfo(){
-    selectedXInput.value = SELECTED_PLAFORM.rect.x;
-    selectedYInput.value = SELECTED_PLAFORM.rect.y;
-    selectedWidthInput.value = SELECTED_PLAFORM.rect.width;
-    selectedHeightInput.value = SELECTED_PLAFORM.rect.height;
+    if (SELECTED_PLAFORM_INDEX == null){
+        return;
+    }
+    console.log("trigger")
+    selectedXInput.value = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.x;
+    selectedYInput.value = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.y;
+    selectedWidthInput.value = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width;
+    selectedHeightInput.value = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height;
 }
 
 function deselectPlatform(){
-    SELECTED_PLAFORM = null;
-    selecedWidgets.style.visibility = "hidden";
+    SELECTED_PLAFORM_INDEX = null;
+    selectedWidgets.style.visibility = "hidden";
 }
 
 function changePlatform(){
-    SELECTED_PLAFORM.rect.x = Number(selectedXInput.value);
-    SELECTED_PLAFORM.rect.y = Number(selectedYInput.value);
-    SELECTED_PLAFORM.rect.width = Number(selectedWidthInput.value);
-    SELECTED_PLAFORM.rect.height = Number(selectedHeightInput.value);
+    PLATFORMS[SELECTED_PLAFORM_INDEX].rect.x = Number(selectedXInput.value);
+    PLATFORMS[SELECTED_PLAFORM_INDEX].rect.y = Number(selectedYInput.value);
+    PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width = Number(selectedWidthInput.value);
+    PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height = Number(selectedHeightInput.value);
 }
 
 function moveMouse(event){
@@ -229,7 +264,7 @@ backgroundSelect.addEventListener('change', changeBackground);
 const platformButton = document.getElementById("new_platform_button");
 platformButton.addEventListener("click", addPlatform);
 
-const selecedWidgets = document.getElementById("selected_widget_group");
+const selectedWidgets = document.getElementById("selected_widget_group");
 const selectedXInput = document.getElementById("selected_x");
 const selectedYInput = document.getElementById("selected_y");
 const selectedWidthInput = document.getElementById("selected_width");
