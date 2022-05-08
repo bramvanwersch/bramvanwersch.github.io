@@ -18,8 +18,10 @@ var backgroundImage = null;
 var keysDown = {}
 var keysPressed = {}
 var mouseLocation = new Vector2(0, 0);
+var prevMouseLocation = null;
 var isMouseDown = false;
 var selectOffset = new Vector2(0, 0);
+var camera = new Vector2(0, 0);
 
 class Platform{
     constructor(x, y, w, h){
@@ -53,7 +55,7 @@ function changeBackground(){
 }
 
 function addPlatform(){
-    PLATFORMS.push(new Platform(0, 0, 50, 50));
+    PLATFORMS.push(new Platform(CANVAS.width / 2 - camera.x, CANVAS.height / 2 - camera.y, 50, 50));
 }
 
 function main(){
@@ -64,12 +66,37 @@ function main(){
 }
 
 function processInput(){
+
+    if ("w" in keysDown){
+        camera.y -= 3;
+    }
+    if ("a" in keysDown){
+        camera.x -= 3;
+    }
+    if ("s" in keysDown){
+        camera.y += 3;
+    }
+    if ("d" in keysDown){
+        camera.x += 3;
+    }
+
     if (isMouseDown){
         if (SELECTED_PLAFORM_INDEX != null){
             PLATFORMS[SELECTED_PLAFORM_INDEX].rect.left = mouseLocation.x - selectOffset.x;
             PLATFORMS[SELECTED_PLAFORM_INDEX].rect.top = mouseLocation.y - selectOffset.y;
         }
+        else{
+            if (prevMouseLocation != null){
+                camera.x += mouseLocation.x - prevMouseLocation.x;
+                camera.y += mouseLocation.y - prevMouseLocation.y;
+            }
+            prevMouseLocation = mouseLocation;
+        }
         setSelectedWidgetsInfo();
+
+    }
+    else{
+        prevMouseLocation = null;
     }
     if (SELECTED_PLAFORM_INDEX != null){
         // arrow up
@@ -170,13 +197,13 @@ function drawPlatforms(){
             continue
         }
         else{
-            CONTEXT.fillRect(rect.x, rect.y, rect.width, rect.height);
+            CONTEXT.fillRect(rect.x + camera.x, rect.y + camera.y, rect.width, rect.height);
         }
     }
     if (SELECTED_PLAFORM_INDEX != null){
         let rect = PLATFORMS[SELECTED_PLAFORM_INDEX].rect;
         CONTEXT.fillStyle = "red";
-        CONTEXT.fillRect(rect.x, rect.y, rect.width, rect.height);
+        CONTEXT.fillRect(rect.x + camera.x, rect.y + camera.y, rect.width, rect.height);
     }
 }
 
@@ -205,25 +232,18 @@ document.addEventListener("mousemove", function(event){
 });
 
 function clickMouseUp(event) {
-    let rect = CANVAS.getBoundingClientRect();
-    let x = event.clientX - rect.left;
-    let y = event.clientY - rect.top;
     isMouseDown = false;
 }
 
 function clickMouseDown(event) {
     let rect = CANVAS.getBoundingClientRect();
-    let x = event.clientX - rect.left;
-    let y = event.clientY - rect.top;
-    if (x > CANVAS.width){
-        return;
-    }
-
+    let x = event.clientX - rect.left - camera.x;
+    let y = event.clientY - rect.top - camera.y;
     isMouseDown = true;
     for (let i = 0; i < PLATFORMS.length; i++){
         let pltf = PLATFORMS[i];
         if (pltf.rect.collidesWith(new Rectangle(x, y, 1, 1))){
-            selectOffset = new Vector2(x - pltf.rect.left, y - pltf.rect.top);
+            selectOffset = new Vector2(x - pltf.rect.left + camera.x, y - pltf.rect.top + camera.y);
             selectPlatform(i);
             return;
         }
