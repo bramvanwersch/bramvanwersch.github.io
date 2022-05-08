@@ -23,6 +23,8 @@ var isMouseDown = false;
 var selectOffset = new Vector2(0, 0);
 var camera = new Vector2(0, 0);
 
+var copiedPLatform = null;
+
 class Platform{
     constructor(x, y, w, h){
         this.rect = new Rectangle(x, y, w, h);
@@ -55,7 +57,7 @@ function changeBackground(){
 }
 
 function addPlatform(){
-    PLATFORMS.push(new Platform(CANVAS.width / 2 - camera.x, CANVAS.height / 2 - camera.y, 50, 50));
+    PLATFORMS.push(new Platform(Math.floor(CANVAS.width / 2 - camera.x), Math.floor(CANVAS.height / 2 - camera.y), 50, 50));
 }
 
 function main(){
@@ -139,6 +141,17 @@ function processInput(){
         if ("-" in keysPressed){
             if (PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height > 50){
                 PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height -= 50;
+            }
+        }
+
+        // copy pasting
+        if ("Control" in keysDown){
+            if ("c" in keysPressed){
+                copiedPLatform = PLATFORMS[SELECTED_PLAFORM_INDEX];
+            }
+            if ("v" in keysPressed && copiedPLatform != null){
+                let pltf = new Platform(copiedPLatform.rect.x + 25, copiedPLatform.rect.y + 25, copiedPLatform.rect.width, copiedPLatform.rect.height);
+                PLATFORMS.push(pltf);
             }
         }
 
