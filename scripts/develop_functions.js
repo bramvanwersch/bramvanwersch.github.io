@@ -3,7 +3,6 @@ import { Rectangle, Vector2 } from "./rectangle.js"
 
 // TODO
 // 1. add texture to platforms
-// 2. select platforms and change shape
 // 3. move camera with wasd
 // 4. place environmental stuff
 // 5. read in the images with xml
@@ -70,23 +69,31 @@ function processInput(){
             SELECTED_PLAFORM.rect.left = mouseLocation.x - selectOffset.x;
             SELECTED_PLAFORM.rect.top = mouseLocation.y - selectOffset.y;
         }
+        setSelectedWidgetsInfo();
     }
     if (SELECTED_PLAFORM != null){
         // arrow up
         if (38 in keysDown){
             SELECTED_PLAFORM.rect.y -= 1;
+            setSelectedWidgetsInfo();
         }
         // arrow down
         if (40 in keysDown){
             SELECTED_PLAFORM.rect.y += 1;
+            setSelectedWidgetsInfo();
         }
         // arrow left
         if (37 in keysDown){
             SELECTED_PLAFORM.rect.x -= 1;
+            setSelectedWidgetsInfo();
         }
         // arrow right
         if (39 in keysDown){
             SELECTED_PLAFORM.rect.x += 1;
+            setSelectedWidgetsInfo();
+        }
+        if (27 in keysDown){
+            deselectPlatform();
         }
     }
 }
@@ -168,8 +175,7 @@ function clickMouseDown(event) {
             return;
         }
     }
-    SELECTED_PLAFORM = null;
-    selecedWidgets.style.visibility = "hidden";
+    deselectPlatform();
 }
 
 function selectPlatform(platform){
@@ -179,14 +185,26 @@ function selectPlatform(platform){
     SELECTED_PLAFORM = platform;
     // change visibility of the platform change menu
     selecedWidgets.style.visibility = "visible";
-    selectedWidthInput.value = platform.rect.width;
-    selectedHeightInput.value = platform.rect.height;
+    setSelectedWidgetsInfo();
+}
 
+function setSelectedWidgetsInfo(){
+    selectedXInput.value = SELECTED_PLAFORM.rect.x;
+    selectedYInput.value = SELECTED_PLAFORM.rect.y;
+    selectedWidthInput.value = SELECTED_PLAFORM.rect.width;
+    selectedHeightInput.value = SELECTED_PLAFORM.rect.height;
+}
+
+function deselectPlatform(){
+    SELECTED_PLAFORM = null;
+    selecedWidgets.style.visibility = "hidden";
 }
 
 function changePlatform(){
+    SELECTED_PLAFORM.rect.x = Number(selectedXInput.value);
+    SELECTED_PLAFORM.rect.y = Number(selectedYInput.value);
     SELECTED_PLAFORM.rect.width = Number(selectedWidthInput.value);
-    SELECTED_PLAFORM.rect.height = Number(selectedHeightInput.value)
+    SELECTED_PLAFORM.rect.height = Number(selectedHeightInput.value);
 }
 
 function moveMouse(event){
@@ -212,6 +230,8 @@ const platformButton = document.getElementById("new_platform_button");
 platformButton.addEventListener("click", addPlatform);
 
 const selecedWidgets = document.getElementById("selected_widget_group");
+const selectedXInput = document.getElementById("selected_x");
+const selectedYInput = document.getElementById("selected_y");
 const selectedWidthInput = document.getElementById("selected_width");
 const selectedHeightInput = document.getElementById("selected_height");
 
