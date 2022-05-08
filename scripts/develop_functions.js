@@ -3,7 +3,7 @@ import { Rectangle, Vector2 } from "./rectangle.js"
 
 // TODO
 // 1. add texture to platforms
-// 3. move camera with wasd
+// 2. add rotate functionality 90 degrees
 // 4. place environmental stuff
 // 5. read in the images with xml
 
@@ -252,6 +252,9 @@ function clickMouseDown(event) {
     let rect = CANVAS.getBoundingClientRect();
     let x = event.clientX - rect.left - camera.x;
     let y = event.clientY - rect.top - camera.y;
+    if (x > CANVAS.width - camera.x){
+        return;
+    }
     isMouseDown = true;
     for (let i = 0; i < PLATFORMS.length; i++){
         let pltf = PLATFORMS[i];
