@@ -56,6 +56,12 @@ hr.solid {
   border-top: 3px solid #bbb;
 }
 
+.center{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 
 /* Style page content */
 #main {

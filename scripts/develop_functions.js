@@ -22,9 +22,6 @@ var mouseLocation = new Vector2(0, 0);
 var isMouseDown = false;
 var selectOffset = new Vector2(0, 0);
 
-var selecedWidgets = document.getElementById("selected_widget_group");
-
-
 class Platform{
     constructor(x, y, w, h){
         this.rect = new Rectangle(x, y, w, h);
@@ -74,6 +71,24 @@ function processInput(){
             SELECTED_PLAFORM.rect.top = mouseLocation.y - selectOffset.y;
         }
     }
+    if (SELECTED_PLAFORM != null){
+        // arrow up
+        if (38 in keysDown){
+            SELECTED_PLAFORM.rect.y -= 1;
+        }
+        // arrow down
+        if (40 in keysDown){
+            SELECTED_PLAFORM.rect.y += 1;
+        }
+        // arrow left
+        if (37 in keysDown){
+            SELECTED_PLAFORM.rect.x -= 1;
+        }
+        // arrow right
+        if (39 in keysDown){
+            SELECTED_PLAFORM.rect.x += 1;
+        }
+    }
 }
 
 function draw(){
@@ -99,7 +114,7 @@ function drawPlatforms(){
         CONTEXT.fill();
         if (SELECTED_PLAFORM != null && PLATFORMS[i].id == SELECTED_PLAFORM.id){
             CONTEXT.strokeStyle  = "red";
-            CONTEXT.lineWidth = 5;
+            CONTEXT.lineWidth = 2;
             CONTEXT.stroke();
         }
     }
@@ -149,13 +164,29 @@ function clickMouseDown(event) {
         let pltf = PLATFORMS[i];
         if (pltf.rect.collidesWith(new Rectangle(x, y, 1, 1))){
             selectOffset = new Vector2(x - pltf.rect.left, y - pltf.rect.top);
-            SELECTED_PLAFORM = pltf;
-            selecedWidgets.style.visibility = "visible";
+            selectPlatform(pltf);
             return;
         }
     }
     SELECTED_PLAFORM = null;
     selecedWidgets.style.visibility = "hidden";
+}
+
+function selectPlatform(platform){
+    if (SELECTED_PLAFORM != null && platform.id == SELECTED_PLAFORM.id){
+        return;
+    }
+    SELECTED_PLAFORM = platform;
+    // change visibility of the platform change menu
+    selecedWidgets.style.visibility = "visible";
+    selectedWidthInput.value = platform.rect.width;
+    selectedHeightInput.value = platform.rect.height;
+
+}
+
+function changePlatform(){
+    SELECTED_PLAFORM.rect.width = Number(selectedWidthInput.value);
+    SELECTED_PLAFORM.rect.height = Number(selectedHeightInput.value)
 }
 
 function moveMouse(event){
@@ -173,8 +204,18 @@ window.onload = function(){
     setup();
 }
 
+// bind events and set values for html widgets
 const backgroundSelect = document.getElementById("background_select");
 backgroundSelect.addEventListener('change', changeBackground);
 
 const platformButton = document.getElementById("new_platform_button");
 platformButton.addEventListener("click", addPlatform);
+
+const selecedWidgets = document.getElementById("selected_widget_group");
+const selectedWidthInput = document.getElementById("selected_width");
+const selectedHeightInput = document.getElementById("selected_height");
+
+const platformChangeButton = document.getElementById("selected_platform_submit");
+platformChangeButton.addEventListener("click", changePlatform);
+
+
