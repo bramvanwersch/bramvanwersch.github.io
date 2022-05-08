@@ -132,6 +132,12 @@ function processInput(){
                 PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width -= 50;
             }
         }
+        // rotate
+        if ("r" in keysPressed){
+            let temp = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width;
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height;
+            PLATFORMS[SELECTED_PLAFORM_INDEX].rect.height = temp;
+        }
 
         // change height
         if ("=" in keysPressed){
