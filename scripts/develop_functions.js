@@ -116,22 +116,6 @@ function processInput(){
         }
 
         // deselecting or deleting stuff last
-        if ("e" in keysPressed){
-            if (SELECTED_PLAFORM_INDEX == PLATFORMS.length - 1){
-                selectPlatform(0);
-            }
-            else{
-                selectPlatform(SELECTED_PLAFORM_INDEX + 1);
-            }
-        }
-        if ("q" in keysPressed){
-            if (SELECTED_PLAFORM_INDEX == 0){
-                selectPlatform(PLATFORMS.length - 1);
-            }
-            else{
-                selectPlatform(SELECTED_PLAFORM_INDEX - 1);
-            }
-        }
         if ("Delete" in keysDown){
             PLATFORMS.splice(SELECTED_PLAFORM_INDEX, 1);
             deselectPlatform();
@@ -142,6 +126,24 @@ function processInput(){
 
         if (updateSelectedWidget){
             setSelectedWidgetsInfo();
+        }
+    }
+    if (PLATFORMS.length > 0){
+        if ("e" in keysPressed){
+            if (SELECTED_PLAFORM_INDEX == null || SELECTED_PLAFORM_INDEX == PLATFORMS.length - 1){
+                selectPlatform(0);
+            }
+            else{
+                selectPlatform(SELECTED_PLAFORM_INDEX + 1);
+            }
+        }
+        if ("q" in keysPressed){
+            if (SELECTED_PLAFORM_INDEX == null || SELECTED_PLAFORM_INDEX == 0){
+                selectPlatform(PLATFORMS.length - 1);
+            }
+            else{
+                selectPlatform(SELECTED_PLAFORM_INDEX - 1);
+            }
         }
     }
 }
@@ -240,7 +242,6 @@ function setSelectedWidgetsInfo(){
     if (SELECTED_PLAFORM_INDEX == null){
         return;
     }
-    console.log("trigger")
     selectedXInput.value = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.x;
     selectedYInput.value = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.y;
     selectedWidthInput.value = PLATFORMS[SELECTED_PLAFORM_INDEX].rect.width;
