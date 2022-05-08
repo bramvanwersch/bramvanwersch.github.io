@@ -115,9 +115,26 @@ function processInput(){
             }
         }
 
-
+        // deselecting or deleting stuff last
+        if ("e" in keysPressed){
+            if (SELECTED_PLAFORM_INDEX == PLATFORMS.length - 1){
+                selectPlatform(0);
+            }
+            else{
+                selectPlatform(SELECTED_PLAFORM_INDEX + 1);
+            }
+        }
+        if ("q" in keysPressed){
+            if (SELECTED_PLAFORM_INDEX == 0){
+                selectPlatform(PLATFORMS.length - 1);
+            }
+            else{
+                selectPlatform(SELECTED_PLAFORM_INDEX - 1);
+            }
+        }
         if ("Delete" in keysDown){
-
+            PLATFORMS.splice(SELECTED_PLAFORM_INDEX, 1);
+            deselectPlatform();
         }
         if ("Escape" in keysDown){
             deselectPlatform();
