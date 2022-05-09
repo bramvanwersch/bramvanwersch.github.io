@@ -25,6 +25,9 @@ var camera = new Vector2(0, 0);
 
 var copiedPLatform = null;
 
+
+data.readLayoutFile("data/assets/tiles_spritesheet_layout.txt")
+
 class Platform{
     constructor(x, y, w, h){
         this.rect = new Rectangle(x, y, w, h);
