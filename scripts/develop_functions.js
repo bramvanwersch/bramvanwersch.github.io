@@ -26,7 +26,7 @@ var camera = new Vector2(0, 0);
 var copiedPLatform = null;
 
 
-data.readLayoutFile("data/assets/tiles_spritesheet_layout.txt")
+var tileImageSet = data.loadTileSet("tiles")
 
 class Platform{
     constructor(x, y, w, h){
