@@ -3,3 +3,7 @@
     background-color: rgb(39, 39, 39);
     color: rgb(61, 199, 68);
 }
+
+.error{
+    color: red !important;
+}

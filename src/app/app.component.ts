@@ -13,5 +13,4 @@ import { TerminalComponent } from './terminal/terminal.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'mon_site';
 }

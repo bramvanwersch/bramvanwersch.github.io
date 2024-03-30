@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { Command } from '../../command';
 
 @Component({
   selector: 'app-active-terminal-line',
