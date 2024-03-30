@@ -3,8 +3,8 @@ export class Command {
     response: string;
     command: string;
 
-    constructor(){
-        this.response = "";
-        this.command = "";
+    constructor(command: string, response: string){
+        this.command = command;
+        this.response = response;
     }
 }

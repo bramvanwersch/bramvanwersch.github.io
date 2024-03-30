@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { Command } from '../../command';
 
 @Component({
@@ -9,6 +9,15 @@ import { Command } from '../../command';
   styleUrl: './active-terminal-line.component.css'
 })
 export class ActiveTerminalLineComponent {
-  current_command: Command = new Command();
 
+  @Output() terminalCommandEvent = new EventEmitter<string>();
+
+  onEnter(event: Event){
+    let value = (event.target as HTMLInputElement).value;
+    if (value === ""){
+      return;
+    }
+    (event.target as HTMLInputElement).value = "";
+    this.terminalCommandEvent.emit(value);
+  }
 }
