@@ -1,0 +1,18 @@
+
+.terminal{
+    background-color: rgb(39, 39, 39);
+    color: rgb(61, 199, 68);
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.terminal-internal{
+    padding: 5px;
+    flex-grow: 1;
+    border-style: solid;
+    border-radius: 3px;
+    border-color: rgb(112, 109, 109);
+}
