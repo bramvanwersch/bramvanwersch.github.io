@@ -1,0 +1,2 @@
+ng  generate component terminal --skip-tests
+https://blog.logrocket.com/deploying-single-page-angular-apps-to-github-pages/

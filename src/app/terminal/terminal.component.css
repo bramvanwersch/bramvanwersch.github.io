@@ -1,13 +1,11 @@
 
 .terminal{
-    background-color: rgb(39, 39, 39);
-    color: rgb(61, 199, 68);
     height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
+    font-family: monospace;
 }
-
 
 .terminal-internal{
     padding: 5px;

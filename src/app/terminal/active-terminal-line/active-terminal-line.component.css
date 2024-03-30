@@ -1,0 +1,21 @@
+#active-line-input{
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline-width: 0;
+    outline: none;
+    overflow: hidden;
+    resize: none;
+    width: calc(100% - 130px);
+    display: inline-block;
+}
+
+#active-line{
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+}
+
+#active-line-pre{
+    display: inline-block;
+}

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Command } from '../command';
+import { Command } from '../../command';
 
 @Component({
   selector: 'app-terminal-line',

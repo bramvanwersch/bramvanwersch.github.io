@@ -1,6 +1,8 @@
-<div class="terminal">
+<div class="terminal terminal-styling">
     <div class="terminal-internal">
         <app-terminal-line *ngFor="let line of lines" [command]="line">
         </app-terminal-line>
+        <app-active-terminal-line>
+        </app-active-terminal-line>
     </div>
 </div>
