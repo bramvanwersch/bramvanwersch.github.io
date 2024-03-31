@@ -14,3 +14,17 @@
     border-radius: 3px;
     border-color: rgb(112, 109, 109);
 }
+
+.official-message-box{
+    border-width: 2px;
+    margin: 5px;
+    padding: 10px;
+    border-style: solid;
+    border-color: rgb(112, 109, 109);
+}
+
+.welcome-message{
+    color: var(--response-color);
+    text-align: center;
+    margin-bottom: 20px;
+}

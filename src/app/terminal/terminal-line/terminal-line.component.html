@@ -1,6 +1,7 @@
 <div>
     <span>anomymous&#64;web: ~/>{{ command.command }}</span>
     <div class="command-response" [ngClass]="{'error': command.is_error}">
-        {{ command.response }}
+        <div *ngFor="let line of command.response" [innerHTML]="line">
+        </div>
     </div>
 </div>

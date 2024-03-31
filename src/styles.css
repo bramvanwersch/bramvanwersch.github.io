@@ -1,9 +1,31 @@
 /* You can add global styles to this file, and also import other style files */
+
+:root{
+    --error-color: red;
+    --good-color: darkgreen;
+    --background-color: rgb(39, 39, 39);
+    --command-color: rgb(61, 199, 68);
+    --response-color: rgb(199, 194, 194);
+}
+
+
 .terminal-styling{
-    background-color: rgb(39, 39, 39);
-    color: rgb(61, 199, 68);
+    background-color: var(--background-color);
+    color: var(--command-color);
 }
 
 .error{
-    color: red !important;
+    color: var(--error-color) !important;
+}
+
+.good{
+    color: var(--good-color);
+}
+
+a:hover{
+    color: var(--command-color)
+}
+
+a:visited{
+    color: var(--good-color)
 }
