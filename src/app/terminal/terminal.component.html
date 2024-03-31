@@ -23,7 +23,7 @@
         </div>
         <app-terminal-line *ngFor="let line of lines" [line]="line">
         </app-terminal-line>
-        <app-active-terminal-line (terminalCommandEvent)="run_command($event)" (terminalMessageEvent)="add_message($event)">
+        <app-active-terminal-line (terminalCommandEvent)="run_command($event)" (emit_line_event)="add_message($event)">
         </app-active-terminal-line>
     </div>
 </div>

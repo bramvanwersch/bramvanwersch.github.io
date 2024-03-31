@@ -29,3 +29,7 @@ a:hover{
 a:visited{
     color: var(--good-color)
 }
+
+.no-space{
+    white-space: pre;
+}

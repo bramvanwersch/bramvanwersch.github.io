@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { COMMAND_MAPPING } from '../command_definitions';
+import { LineType, TerminalLineOutput } from '../output_lines';
 
 @Component({
   selector: 'app-active-terminal-line',
@@ -11,7 +12,7 @@ import { COMMAND_MAPPING } from '../command_definitions';
 export class ActiveTerminalLineComponent {
 
   @Output() terminalCommandEvent = new EventEmitter<string>();
-  @Output() terminalMessageEvent = new EventEmitter<string>();
+  @Output() emit_line_event = new EventEmitter<TerminalLineOutput>();
 
   onEnter(event: Event){
     let value = (event.target as HTMLInputElement).value;
@@ -35,7 +36,8 @@ export class ActiveTerminalLineComponent {
       (event.target as HTMLInputElement).value = matched[0];
     }
     else if (matched.length > 1){
-
+      this.emit_line_event.emit(new TerminalLineOutput([value], LineType.COMMAND));
+      this.emit_line_event.emit(new TerminalLineOutput([matched.join("&nbsp&nbsp&nbsp&nbsp")]));
     }
   }
 }

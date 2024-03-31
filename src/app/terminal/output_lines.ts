@@ -14,31 +14,4 @@ export class TerminalLineOutput {
         this.lines = lines;
         this.type = type;
     }
-
-    as_html(): string[]{
-        switch (this.type){
-            case LineType.ERROR: {
-                let total = [];
-                for (let line of this.lines){
-                    total.push(`<div class="error" [innerHTML]="${line}"></div>`);
-                }
-                console.log(total);
-                
-                return total;
-            }
-            case LineType.COMMAND: {
-                return [`<div>anomymous&#64;web: ~/>${this.lines[0]}</div>`]
-            }
-            case LineType.MESSAGE: {
-                let total = [];
-                for (let line of this.lines){
-                    total.push(`<div [innerHTML]="${line}"></div>`);
-                }
-                return total;
-            }
-            default: {
-                throw "Invalid type provided";
-            }
-        }
-    }
 }

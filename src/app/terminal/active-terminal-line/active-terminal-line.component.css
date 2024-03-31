@@ -8,6 +8,7 @@
     resize: none;
     width: calc(100% - 130px);
     display: inline-block;
+    color: var(--response-color);
 }
 
 #active-line{
