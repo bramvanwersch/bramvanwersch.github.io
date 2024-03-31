@@ -1,4 +1,5 @@
 import { Command } from "./command";
+import { Directory } from "./file_tree";
 import { TerminalLineOutput } from "./output_lines";
 
 
@@ -8,6 +9,7 @@ export const COMMAND_MAPPING: { [key: string]: Command } = {
     "skills": new Command("skills", skill_func, "Show a list of skills of the author"),
     "cd": new Command("cd", cd_func, "move to another directory"),
 }
+
 
 function help_func(parts: string[]): TerminalLineOutput {
     let help_text = ["These are all the available commands:"];
@@ -37,7 +39,6 @@ function about_func(input: string[]): TerminalLineOutput {
 function skill_func(input: string[]): TerminalLineOutput{
     return new TerminalLineOutput(
         [
-            `Skills:`,
             `Here is a list of languages/skills that I am comfartably using on a scale from 0 to 9. With 0 being able to write 
             a program with lots of trial and error and 9 being able to write that same program as efficient as possible with no external help.`,
             `<span class="no-space">             0   1   2   3   4   5   6   7   8   9 </span>`,
