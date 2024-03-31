@@ -1,12 +1,14 @@
 import { Component, Input } from '@angular/core';
-import { IssuedCommand } from '../issued_command';
-import { NgClass, NgFor } from '@angular/common';
+import { TerminalLineOutput, LineType } from '../output_lines';
+import { NgClass, NgFor, NgSwitch, NgSwitchCase } from '@angular/common';
 
 @Component({
   selector: 'app-terminal-line',
   standalone: true,
   imports: [
     NgClass,
+    NgSwitch,
+    NgSwitchCase,
     NgFor
   ],
   templateUrl: './terminal-line.component.html',
@@ -14,5 +16,8 @@ import { NgClass, NgFor } from '@angular/common';
 })
 export class TerminalLineComponent {
 
-  @Input() command!: IssuedCommand;
+  lineType: typeof LineType = LineType;
+
+  @Input() line!: TerminalLineOutput;
+
 }

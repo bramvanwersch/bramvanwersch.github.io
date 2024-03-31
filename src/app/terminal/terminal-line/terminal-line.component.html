@@ -1,7 +1,15 @@
-<div>
-    <span>anomymous&#64;web: ~/>{{ command.command }}</span>
-    <div class="command-response" [ngClass]="{'error': command.is_error}">
-        <div *ngFor="let line of command.response" [innerHTML]="line">
+<div [ngSwitch]="line.type">
+    <div *ngSwitchCase="lineType.MESSAGE">
+        <div *ngFor="let l of line.lines" [innerHTML]="l" class="command-response">
+        </div>
+    </div>
+    <div *ngSwitchCase="lineType.ERROR">
+        <div *ngFor="let l of line.lines" [innerHTML]="l" class="error">
+        </div>
+    </div>
+    <div *ngSwitchCase="lineType.COMMAND">
+        <div>
+            anomymous&#64;web: ~/>{{ line.lines[0] }}
         </div>
     </div>
 </div>

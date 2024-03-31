@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { TerminalLineComponent } from './terminal-line/terminal-line.component';
 import { NgFor } from '@angular/common';
-import { IssuedCommand } from './issued_command';
+import { LineType, TerminalLineOutput } from './output_lines';
 import { ActiveTerminalLineComponent } from './active-terminal-line/active-terminal-line.component';
-import { cd_func, about_func } from './command_definitions';
-import { Command } from './command';
+import { COMMAND_MAPPING } from './command_definitions';
 
 @Component({
   selector: 'app-terminal',
@@ -19,48 +18,33 @@ import { Command } from './command';
 })
 export class TerminalComponent implements OnInit {
 
-  command_mapping: { [key: string]: Command }
-  lines: IssuedCommand[]
+  lines: TerminalLineOutput[]
 
   constructor(){
-    this.command_mapping = {
-      "cd": new Command("cd", cd_func, "move to another directory"),
-      "help": new Command("help", this._help_func, "show help message for all current commands"),
-      "about": new Command("about", about_func, "show some information about the author of this website")
-    }
+
     this.lines = [];
   }
 
   ngOnInit(): void {
-    this.addCommand("help");
+    this.run_command("help");
   }
 
-  addCommand(input: string) {
+  run_command(input: string) {
     let parts = this._get_arguments(input);
-    let command = this.command_mapping[parts[0]];
-    let issued_command = new IssuedCommand(input);
+    let command = COMMAND_MAPPING[parts[0]];
+    this.lines.push(new TerminalLineOutput([parts[0]], LineType.COMMAND))
     if (command === undefined) {
-      issued_command.set_error(`Unknown command '${parts[0]}'`);
+      this.lines.push(new TerminalLineOutput([`Unknown command '${parts[0]}'`], LineType.ERROR))
     } else {
-      command.call(parts.slice(1), issued_command);
+      this.lines.push(command.call(parts.slice(1)));
     }
-    this.lines.push(issued_command);
+  }
+
+  add_message(event: string){
+    this.lines.push()
   }
 
   _get_arguments(input: string): string[] {
     return input.split(/[ ,]+/);
-  }
-
-  _help_func = (parts: string[], issued_command: IssuedCommand) =>{
-    let help_text = ["These are all the available commands:"];
-    console.log(this.command_mapping);
-    
-    for (let key in this.command_mapping){
-      console.log(key);
-      
-      let command = this.command_mapping[key];
-      help_text.push(`- ${key}: ${command.help_text}\n`);
-    }
-    issued_command.response = help_text;
   }
 }

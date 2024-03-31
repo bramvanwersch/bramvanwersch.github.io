@@ -3,3 +3,5 @@ https://blog.logrocket.com/deploying-single-page-angular-apps-to-github-pages/
 
 
 cap out the lines
+use github api for all repositories
+https://api.github.com/users/bramvanwersch/repos
