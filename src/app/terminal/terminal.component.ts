@@ -4,7 +4,6 @@ import { NgFor } from '@angular/common';
 import { LineType, TerminalLineOutput } from './output_lines';
 import { ActiveTerminalLineComponent } from './active-terminal-line/active-terminal-line.component';
 import { COMMAND_MAPPING } from './command_definitions';
-import { init_file_tree } from './file_tree';
 
 @Component({
   selector: 'app-terminal',
@@ -27,7 +26,6 @@ export class TerminalComponent implements OnInit {
   }
 
   ngOnInit(): void {    
-    init_file_tree();
     this.run_command("help");
   }
 

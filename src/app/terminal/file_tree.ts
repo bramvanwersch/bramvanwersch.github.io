@@ -37,18 +37,48 @@ export class File{
 
 }
 
-export const TREE_ROOT = new Directory("/", null);
+export class FileTree{
 
-export function init_file_tree(){
-    let paths = [
-        "/home/bram/repos",
-        "/home/anonymous",
-        "/etc",
-    ]
-    for (let path of paths){
-        let parts = path.split("/");
-        console.log(parts);
-        
+    root: Directory
+    path_mapping: Map<string, Directory>
+
+    constructor(){
+        this.root = new Directory("/", null);
+        this.path_mapping = new Map();
     }
 
+
+    _init_tree(){
+        let paths = [
+            "/home/bram/repos",
+            "/home/anonymous",
+            "/etc",
+        ]
+        for (let path of paths){
+            let parts = path.split("/").slice(1);
+            let dir = this.root;
+            let  new_dir;
+            let current_path = "/";
+            for (let part of parts){
+                current_path += `/${part}`;
+                new_dir = new Directory(part, dir);
+                this.path_mapping.set(current_path, new_dir);
+                dir.directories.push(new_dir);
+                dir.add_directory(part);
+                dir = new_dir;
+            }
+        }
+    }
+
+    get_path(path: string): string | undefined{
+        path = path.replace("~", "/home/anonymous");
+        if (this.path_mapping.get(path) === undefined){
+            return undefined;
+        }
+        return path;
+    }
 }
+
+export let FILE_TREE: FileTree = new FileTree();
+
+export let CURRENT_PATH: string = "~/";

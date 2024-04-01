@@ -1,6 +1,6 @@
 import { Command } from "./command";
-import { Directory } from "./file_tree";
-import { TerminalLineOutput } from "./output_lines";
+import { FILE_TREE, CURRENT_PATH } from "./file_tree";
+import { TerminalLineOutput, LineType } from "./output_lines";
 
 
 export const COMMAND_MAPPING: { [key: string]: Command } = {
@@ -22,6 +22,11 @@ function help_func(parts: string[]): TerminalLineOutput {
 }
 
 function cd_func(input: string[]): TerminalLineOutput {
+    let full_path = FILE_TREE.get_dir(input[0]);
+    CURRENT_PATH = full_path;
+    if (dir === undefined){
+        return new TerminalLineOutput(["No such file or directory"], LineType.ERROR);
+    }
     return new TerminalLineOutput(["Not implemented"]);
 
 }
