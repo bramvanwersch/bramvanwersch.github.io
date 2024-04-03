@@ -1,3 +1,4 @@
+import { SESSION } from "./session";
 
 export class Directory{
     
@@ -45,8 +46,8 @@ export class FileTree{
     constructor(){
         this.root = new Directory("/", null);
         this.path_mapping = new Map();
+        this._init_tree();
     }
-
 
     _init_tree(){
         let paths = [
@@ -58,10 +59,10 @@ export class FileTree{
             let parts = path.split("/").slice(1);
             let dir = this.root;
             let  new_dir;
-            let current_path = "/";
+            let current_path = "";
             for (let part of parts){
                 current_path += `/${part}`;
-                new_dir = new Directory(part, dir);
+                new_dir = new Directory(part, dir);                
                 this.path_mapping.set(current_path, new_dir);
                 dir.directories.push(new_dir);
                 dir.add_directory(part);
@@ -71,7 +72,7 @@ export class FileTree{
     }
 
     get_path(path: string): string | undefined{
-        path = path.replace("~", "/home/anonymous");
+        path = path.replace("~", `/home/${SESSION.current_user}`);
         if (this.path_mapping.get(path) === undefined){
             return undefined;
         }

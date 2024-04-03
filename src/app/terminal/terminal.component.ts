@@ -20,19 +20,19 @@ export class TerminalComponent implements OnInit {
 
   lines: TerminalLineOutput[]
 
-  constructor(){
 
+  constructor() {
     this.lines = [];
   }
 
-  ngOnInit(): void {    
+  ngOnInit(): void {
     this.run_command("help");
   }
 
   run_command(input: string) {
     let parts = this._get_arguments(input);
     let command = COMMAND_MAPPING[parts[0]];
-    this.lines.push(new TerminalLineOutput([parts[0]], LineType.COMMAND))
+    this.lines.push(new TerminalLineOutput([input], LineType.COMMAND))
     if (command === undefined) {
       this.lines.push(new TerminalLineOutput([`Unknown command '${parts[0]}'`], LineType.ERROR))
     } else {
@@ -40,7 +40,7 @@ export class TerminalComponent implements OnInit {
     }
   }
 
-  add_message(event: TerminalLineOutput){
+  add_message(event: TerminalLineOutput) {
     this.lines.push(event);
   }
 
