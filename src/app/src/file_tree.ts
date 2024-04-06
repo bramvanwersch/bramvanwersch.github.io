@@ -72,7 +72,23 @@ export class FileTree{
     }
 
     get_path(path: string): string | undefined{
-        path = path.replace("~", `/home/${SESSION.current_user}`);
+        if (!path.startsWith("/")){
+            if (path === "."){
+                return SESSION.current_dir;
+            }
+            else if (path === ".."){
+                console.log(SESSION.current_dir.split("/").length, SESSION.current_dir); 
+                if (SESSION.current_dir.split("/").length - 1 <= 1){
+                    return "/";
+                }
+                path = SESSION.current_dir.substring(0, SESSION.current_dir.lastIndexOf('/'));
+            }
+            else{
+                path = `${SESSION.current_dir}/${path}`
+            }
+        }
+        console.log(path);
+        
         if (this.path_mapping.get(path) === undefined){
             return undefined;
         }

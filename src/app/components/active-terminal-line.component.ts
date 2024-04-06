@@ -17,26 +17,21 @@ import { SESSION } from '../src/session';
   `,
     styles: `
     #active-line-input{
-      margin: 0;
-      padding: 0;
-      border: none;
-      outline-width: 0;
-      outline: none;
-      overflow: hidden;
-      resize: none;
-      width: calc(100% - 130px);
-      color: var(--response-color);
-  }
+        margin: 0;
+        padding: 0;
+        border: none;
+        outline-width: 0;
+        outline: none;
+        overflow: hidden;
+        resize: none;
+        flex-grow: 1;
+        color: var(--response-color);
+    }
 
-  #active-line{
-      width: 100%;
-      display: flex;
-      align-items: flex-start;
-  }
-
-  #active-line-pre{
-      
-  }
+    #active-line{
+        display: flex;
+        align-items: center;
+    }
 `})
 export class ActiveTerminalLineComponent {
 

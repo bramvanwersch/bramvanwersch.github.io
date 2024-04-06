@@ -6,8 +6,8 @@ export class Session{
     current_user: string
 
     constructor(){
-        this.current_dir = "~/";
         this.current_user = "anonymous"
+        this.current_dir = `/home/${this.current_user}`;
     }
 
     get_prefix(): string{
