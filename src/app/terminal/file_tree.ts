@@ -81,5 +81,3 @@ export class FileTree{
 }
 
 export let FILE_TREE: FileTree = new FileTree();
-
-export let CURRENT_PATH: string = "~/";

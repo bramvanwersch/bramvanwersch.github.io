@@ -1,5 +1,5 @@
 import { Command } from "./command";
-import { FILE_TREE, CURRENT_PATH } from "./file_tree";
+import { FILE_TREE } from "./file_tree";
 import { TerminalLineOutput, LineType } from "./output_lines";
 import { SESSION } from "./session";
 
