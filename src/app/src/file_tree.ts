@@ -52,49 +52,51 @@ export class FileTree{
     }
 
     _init_tree(){
-        let paths = [
-            "/home/bram/repos",
-            "/home/anonymous",
-            "/etc",
-        ]
-        this.path_mapping.set("", this.root)
-        for (let path of paths){
-            let parts = path.split("/").slice(1);
-            let dir = this.root;
-            let  new_dir;
-            let current_path = "";
-            for (let part of parts){
-                current_path += `/${part}`;
-                new_dir = new Directory(part, dir);                
-                this.path_mapping.set(current_path, new_dir);
-                dir.directories.push(new_dir);
-                dir.add_directory(part);
-                dir = new_dir;
-            }
+        let parts = {
+                "home": {
+                    "bram": {
+                        "repos": {}
+                    },
+                    "anonymous": {}
+                },
+                "etc": {}
         }
+        this.path_mapping.set("", this.root)
+        // ¯\_(ツ)_/¯
+        this.path_mapping.set("/", this.root)
+        this._add_init_tree(parts, this.root)
+        console.log(this.root);
+        
     }
 
-    get_path(path: string): string | undefined{
+    _add_init_tree(obj: Record<string, any>, parent: Directory){
+        for (let key in obj){
+            let new_dir = new Directory(key, parent);
+            this.path_mapping.set(new_dir.path, new_dir);
+            parent.directories.push(new_dir);
+            this._add_init_tree(obj[key], new_dir)
+        }
+
+    }
+
+    get_directory(path: string): Directory | undefined{
+        return this._resolve_path(path);
+    }
+
+    _resolve_path(path: string): Directory | undefined{
         let current_dir = SESSION.current_dir.replace("~", this._get_home_path());
-        console.log(current_dir);
         
         path = path.replace("~", this._get_home_path());
-        console.log(path);
 
         path = path.replace("..", this._get_parent_path(current_dir));
-        console.log(path);
         
         path = path.replace(".", current_dir);
-        console.log(path);
                 
         if (!path.startsWith("/") && path != ''){
             path = `${SESSION.current_dir}/${path}`;
         }
-        
-        if (this.path_mapping.get(path) === undefined){
-            return undefined;
-        }
-        return path;
+
+        return this.path_mapping.get(path);
     }
 
     _get_parent_path(current_dir: string): string{

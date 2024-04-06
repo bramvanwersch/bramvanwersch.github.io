@@ -9,6 +9,7 @@ export const COMMAND_MAPPING: { [key: string]: Command } = {
     "about": new Command("about", about_func, "show some information about the author"),
     "skills": new Command("skills", skill_func, "Show a list of skills of the author"),
     "cd": new Command("cd", cd_func, "move to another directory"),
+    "ls": new Command("ls", ls_func, "show the contents of the provided directory"),
 }
 
 
@@ -23,13 +24,30 @@ function help_func(parts: string[]): TerminalLineOutput {
 }
 
 function cd_func(input: string[]): TerminalLineOutput {
-    let full_path = FILE_TREE.get_path(input[0]);
+    let full_path = FILE_TREE.get_directory(input[0]);
     if (full_path === undefined){
         return new TerminalLineOutput(["No such file or directory"], LineType.ERROR);
     }
-    SESSION.current_dir = full_path;
+    SESSION.current_dir = full_path.path;
     return new TerminalLineOutput([""]);
+}
 
+function ls_func(input: string[]): TerminalLineOutput {
+    if (input.length == 0){
+        input.push(".")
+    }
+    let full_path = FILE_TREE.get_directory(input[0]);
+    if (full_path === undefined){
+        return new TerminalLineOutput(["No such file or directory"], LineType.ERROR);
+    }
+    let lines = [];
+    for (let dir of full_path.directories){
+        lines.push(dir.name);
+    }
+    for (let file of full_path.files){
+        lines.push(file.name);
+    }
+    return new TerminalLineOutput(lines);
 }
 
 function about_func(input: string[]): TerminalLineOutput {
