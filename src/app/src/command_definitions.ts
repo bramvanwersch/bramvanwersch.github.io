@@ -10,10 +10,14 @@ export const COMMAND_MAPPING: { [key: string]: Command } = {
     "skills": new Command("skills", skill_func, "Show a list of skills of the author"),
     "cd": new Command("cd", cd_func, "move to another directory"),
     "ls": new Command("ls", ls_func, "show the contents of the provided directory"),
+    "cat": new Command("cat", cat_func, "print the contents of a file to the shell")
 }
 
 
-function help_func(parts: string[]): TerminalLineOutput {
+function help_func(input: string[]): TerminalLineOutput {
+    if (input.length > 0){
+        return new TerminalLineOutput([`Expected no arguments got ${input.length}`], LineType.ERROR);
+    }
     let help_text = ["These are all the available commands:"];
 
     for (let key in COMMAND_MAPPING) {
@@ -24,21 +28,27 @@ function help_func(parts: string[]): TerminalLineOutput {
 }
 
 function cd_func(input: string[]): TerminalLineOutput {
+    if (input.length !== 1){
+        return new TerminalLineOutput([`Expected 1 argument got ${input.length}`], LineType.ERROR);
+    }
     let full_path = FILE_TREE.get_directory(input[0]);
     if (full_path === undefined){
-        return new TerminalLineOutput(["No such file or directory"], LineType.ERROR);
+        return new TerminalLineOutput(["No such directory"], LineType.ERROR);
     }
     SESSION.current_dir = full_path.path;
     return new TerminalLineOutput([""]);
 }
 
 function ls_func(input: string[]): TerminalLineOutput {
+    if (input.length > 1){
+        return new TerminalLineOutput([`Expected 1 or 0 arguments got ${input.length}`], LineType.ERROR);
+    }
     if (input.length == 0){
-        input.push(".")
+        input.push(SESSION.current_dir)
     }
     let full_path = FILE_TREE.get_directory(input[0]);
     if (full_path === undefined){
-        return new TerminalLineOutput(["No such file or directory"], LineType.ERROR);
+        return new TerminalLineOutput(["No such directory"], LineType.ERROR);
     }
     let lines = [];
     for (let dir of full_path.directories){
@@ -50,7 +60,22 @@ function ls_func(input: string[]): TerminalLineOutput {
     return new TerminalLineOutput(lines);
 }
 
+function cat_func(input: string[]): TerminalLineOutput {
+    let file = FILE_TREE.get_file(input[0]);
+    if (file === undefined){
+        return new TerminalLineOutput(["No such file"], LineType.ERROR);
+    }
+    let lines = [];
+    for (let line of file.data.split("\n")){
+        lines.push(line);
+    }
+    return new TerminalLineOutput(lines);
+}
+
 function about_func(input: string[]): TerminalLineOutput {
+    if (input.length > 0){
+        return new TerminalLineOutput([`Expected no arguments got ${input.length}`], LineType.ERROR);
+    }
     return new TerminalLineOutput(
         [`Hey there I'm Bram and I love to write software, both for a living and in my free time. From web applications to 
           complicated algorithms to simple automation scripts. The most interesting things are when I can learn something new 
@@ -61,6 +86,9 @@ function about_func(input: string[]): TerminalLineOutput {
 }
 
 function skill_func(input: string[]): TerminalLineOutput{
+    if (input.length > 0){
+        return new TerminalLineOutput([`Expected no arguments got ${input.length}`], LineType.ERROR);
+    }
     return new TerminalLineOutput(
         [
             `Here is a list of languages/skills that I am comfartably using on a scale from 0 to 9. With 0 being able to write 
