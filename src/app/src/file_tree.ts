@@ -6,12 +6,14 @@ export class Directory{
     parent: Directory | null
     directories: Directory[]
     files: File[]
+    path: string
 
     constructor(name: string, parent: Directory | null){
         this.name = name;
         this.parent = parent;
         this.directories = [];
         this.files = [];
+        this.path = this.parent == null ? "" : `${this.parent.path}/${this.name}`;
     }
 
     add_file(name: string, data: string){
@@ -55,6 +57,7 @@ export class FileTree{
             "/home/anonymous",
             "/etc",
         ]
+        this.path_mapping.set("", this.root)
         for (let path of paths){
             let parts = path.split("/").slice(1);
             let dir = this.root;
@@ -72,27 +75,38 @@ export class FileTree{
     }
 
     get_path(path: string): string | undefined{
-        if (!path.startsWith("/")){
-            if (path === "."){
-                return SESSION.current_dir;
-            }
-            else if (path === ".."){
-                console.log(SESSION.current_dir.split("/").length, SESSION.current_dir); 
-                if (SESSION.current_dir.split("/").length - 1 <= 1){
-                    return "/";
-                }
-                path = SESSION.current_dir.substring(0, SESSION.current_dir.lastIndexOf('/'));
-            }
-            else{
-                path = `${SESSION.current_dir}/${path}`
-            }
-        }
+        let current_dir = SESSION.current_dir.replace("~", this._get_home_path());
+        console.log(current_dir);
+        
+        path = path.replace("~", this._get_home_path());
         console.log(path);
+
+        path = path.replace("..", this._get_parent_path(current_dir));
+        console.log(path);
+        
+        path = path.replace(".", current_dir);
+        console.log(path);
+                
+        if (!path.startsWith("/") && path != ''){
+            path = `${SESSION.current_dir}/${path}`;
+        }
         
         if (this.path_mapping.get(path) === undefined){
             return undefined;
         }
         return path;
+    }
+
+    _get_parent_path(current_dir: string): string{
+        let parent = this.path_mapping.get(current_dir)?.parent
+        if (parent == null){
+            return "/";
+        }
+        return parent.path;
+    }
+
+    _get_home_path(): string{
+        return `/home/${SESSION.current_user}`
     }
 }
 

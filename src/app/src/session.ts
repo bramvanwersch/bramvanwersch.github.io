@@ -7,11 +7,11 @@ export class Session{
 
     constructor(){
         this.current_user = "anonymous"
-        this.current_dir = `/home/${this.current_user}`;
+        this.current_dir = `~`;
     }
 
     get_prefix(): string{
-        return `${SESSION.current_user}@web: ${SESSION.current_dir}>`;
+        return `${SESSION.current_user}@web: ${SESSION.current_dir}/>`;
     }
 }
 
