@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { TerminalLineOutput, LineType } from '../output_lines';
+import { TerminalLineOutput, LineType } from '../src/output_lines';
 import { NgClass, NgFor, NgSwitch, NgSwitchCase } from '@angular/common';
 
 @Component({

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { TerminalLineComponent } from './terminal-line/terminal-line.component';
+import { TerminalLineComponent } from './terminal-line.component';
 import { NgFor } from '@angular/common';
-import { LineType, TerminalLineOutput } from './output_lines';
-import { ActiveTerminalLineComponent } from './active-terminal-line/active-terminal-line.component';
-import { COMMAND_MAPPING } from './command_definitions';
+import { LineType, TerminalLineOutput } from '../src/output_lines';
+import { ActiveTerminalLineComponent } from './active-terminal-line.component';
+import { COMMAND_MAPPING } from '../src/command_definitions';
 
 @Component({
     selector: 'app-terminal',

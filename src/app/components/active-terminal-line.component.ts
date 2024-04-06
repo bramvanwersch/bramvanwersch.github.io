@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { COMMAND_MAPPING } from '../command_definitions';
-import { LineType, TerminalLineOutput } from '../output_lines';
-import { SESSION } from '../session';
+import { COMMAND_MAPPING } from '../src/command_definitions';
+import { LineType, TerminalLineOutput } from '../src/output_lines';
+import { SESSION } from '../src/session';
 
 @Component({
     selector: 'app-active-terminal-line',
