@@ -132,12 +132,10 @@ export class FileTree {
         path = path.replace("~", this._get_home_path());
 
         path = path.replace("..", this._get_parent_path(current_dir));
-        
+
         if (!path.startsWith("/") && path != '') {
             path = `${SESSION.current_dir}/${path}`;
         }
-        console.log(path);
-
         return path;
     }
 

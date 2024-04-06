@@ -1,17 +1,17 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TerminalComponent } from './components/terminal.component';
+import { DesktopComponent } from './components/desktop.component';
 
 @Component({
     selector: 'app-root',
     standalone: true,
     imports: [
         RouterOutlet,
-        TerminalComponent
+        DesktopComponent
     ],
     template: `
     <div id="main">
-        <app-terminal></app-terminal>
+        <app-desktop></app-desktop>
     </div>
     <router-outlet />
     `,
