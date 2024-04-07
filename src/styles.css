@@ -8,6 +8,14 @@
     --response-color: rgb(199, 194, 194);
 }
 
+body{
+    font-family: monospace;
+}
+
+.unselectable{
+    user-select: none;
+    pointer-events: none;
+}
 
 .terminal-styling{
     background-color: var(--background-color);

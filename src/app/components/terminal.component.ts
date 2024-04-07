@@ -50,7 +50,6 @@ import { COMMAND_MAPPING } from '../src/command_definitions';
         width: 100%;
         display: flex;
         flex-direction: column;
-        font-family: monospace;
     }
 
     .terminal-internal{

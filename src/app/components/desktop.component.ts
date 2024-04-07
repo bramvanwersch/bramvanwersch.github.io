@@ -1,13 +1,21 @@
 import { Component} from '@angular/core';
+import { DesktopIconComponent } from './desktop-icon.component';
+import { WindowComponent } from './window.component';
 
 @Component({
     selector: 'app-desktop',
     standalone: true,
-    imports: [],
+    imports: [
+        DesktopIconComponent,
+        WindowComponent
+    ],
     template: `
         <div id="main-desktop">
-            <img id="background-image" src="assets/thebackofthejack.jpg">
-            <img id="terminal-icon" src="assets/terminal-fill.svg">
+            <img id="background-image" src="assets/thebackofthejack.jpg" class="unselectable">
+            <app-desktop-icon (open_window_event)="open_window($event)">
+            </app-desktop-icon>
+            <app-window [height]="'500px'" [width]="'500px'" [visibility]="get_visibility('terminal')" (close_window_event)="close_window($event)">
+            </app-window>
             <div id="bottom-border">
                 <img id="desktop-icon" src="assets/grid-3x3-gap-fill.svg">
             </div>
@@ -22,16 +30,9 @@ import { Component} from '@angular/core';
             background-color: black;
         }
 
-        #terminal-icon{
-            position: absolute;
-            
-        }
-
         #background-image{
             max-width: 100%;
             height: 100%;
-            user-select: none;
-            pointer-events: none;
         }
 
         #bottom-border{
@@ -50,6 +51,29 @@ import { Component} from '@angular/core';
     `}
 )
 export class DesktopComponent {
+
+    window_visibilty: Map<string, string>
+
+    constructor(){
+        this.window_visibilty = new Map();
+        this.window_visibilty.set("terminal", "hidden")
+    }
+
+    open_window(event: string){
+        this.window_visibilty.set(event, 'visible');
+    }
+
+    close_window(event: string){
+        this.window_visibilty.set(event, 'hidden');
+    }
+
+    get_visibility(key: string): string{
+        let value = this.window_visibilty.get(key);
+        if (value === undefined){
+            throw "Invalid desktop icon name provided";
+        }
+        return value;
+    }
 
 }
 
