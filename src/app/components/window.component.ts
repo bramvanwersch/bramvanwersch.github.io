@@ -33,6 +33,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
         .close-button{
             float: right;
+            cursor: pointer;
             text-align: center;
             height: 20px;
             width: 20px;
@@ -47,12 +48,13 @@ export class WindowComponent {
 
     @Input() height!: string;
     @Input() width!: string;
+    @Input() name!: string;
     @Input() visibility: string = "visible";
 
     @Output() close_window_event = new EventEmitter<string>();
 
     close_window(){
-        this.close_window_event.emit("terminal");    
+        this.close_window_event.emit(this.name);    
     }
 }
 

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output} from '@angular/core';
+import { Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
     selector: 'app-desktop-icon',
@@ -7,16 +7,18 @@ import { Component, EventEmitter, Output} from '@angular/core';
     template: `
         <div class="desktop-icon" (dblclick)="on_dblclick()">
             <img class="desktop-icon-image" src="assets/terminal-fill.svg">
-            <div class="desktop-icon-text"><b>Terminal</b></div>
+            <div class="desktop-icon-text"><b>{{ name }}</b></div>
         </div>
     `,
     styles: `
         .desktop-icon{
             position: absolute;
+            cursor: pointer;
             left: 5px;
             top: 5px;
             height: 65px;
             width: 65px;
+            user-select: none;
         }
 
         .desktop-icon-image{
@@ -31,10 +33,12 @@ import { Component, EventEmitter, Output} from '@angular/core';
 )
 export class DesktopIconComponent {
 
+    @Input() name!: string;
+
     @Output() open_window_event = new EventEmitter<string>();
 
     on_dblclick(){
-        this.open_window_event.emit("terminal");
+        this.open_window_event.emit(this.name);
     }
 
 }

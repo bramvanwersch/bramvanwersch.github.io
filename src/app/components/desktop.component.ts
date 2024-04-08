@@ -1,21 +1,18 @@
 import { Component} from '@angular/core';
 import { DesktopIconComponent } from './desktop-icon.component';
 import { WindowComponent } from './window.component';
+import { TerminalComponent } from "./terminal.component";
 
 @Component({
     selector: 'app-desktop',
     standalone: true,
-    imports: [
-        DesktopIconComponent,
-        WindowComponent
-    ],
     template: `
         <div id="main-desktop">
             <img id="background-image" src="assets/thebackofthejack.jpg" class="unselectable">
-            <app-desktop-icon (open_window_event)="open_window($event)">
+            <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Terminal'">
             </app-desktop-icon>
-            <app-window [height]="'500px'" [width]="'500px'" [visibility]="get_visibility('terminal')" (close_window_event)="close_window($event)">
-            </app-window>
+            <app-terminal [visibility]="'visible'">
+            </app-terminal>
             <div id="bottom-border">
                 <img id="desktop-icon" src="assets/grid-3x3-gap-fill.svg">
             </div>
@@ -48,7 +45,12 @@ import { WindowComponent } from './window.component';
             top: 0;
             left: 0;
         }
-    `}
+    `,
+    imports: [
+        DesktopIconComponent,
+        TerminalComponent
+    ]
+}
 )
 export class DesktopComponent {
 
@@ -56,7 +58,11 @@ export class DesktopComponent {
 
     constructor(){
         this.window_visibilty = new Map();
-        this.window_visibilty.set("terminal", "hidden")
+        this._add_program("Terminal");
+    }
+
+    _add_program(name: string){
+        this.window_visibilty.set(name, "hidden")
     }
 
     open_window(event: string){

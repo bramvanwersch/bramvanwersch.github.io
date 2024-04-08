@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TerminalLineComponent } from './terminal-line.component';
 import { NgFor } from '@angular/common';
 import { LineType, TerminalLineOutput } from '../src/output_lines';
 import { ActiveTerminalLineComponent } from './active-terminal-line.component';
 import { COMMAND_MAPPING } from '../src/command_definitions';
+import { WindowComponent } from './window.component';
 
 @Component({
     selector: 'app-terminal',
@@ -11,39 +12,42 @@ import { COMMAND_MAPPING } from '../src/command_definitions';
     imports: [
         TerminalLineComponent,
         ActiveTerminalLineComponent,
+        WindowComponent,
         NgFor
     ],
     template: `
-    <div class="terminal">
-      <div class="terminal-internal terminal-styling">
-          <div class="official-message-box">
-              <div>
-                  <div class="welcome-message">
-                      Welcome to the website of Bram van Wersch. From here you can find all sorts of things about my work, but only if you look hard enough.
-                  </div>
-                  <div>
-                      > SSH session to anomymous&#64;web
-                  </div>
-                  <ul>
-                      <li>
-                          SSH compression: <span class="good">V</span>
-                      </li>
-                      <li>
-                          SSH-browser: <span class="good">V</span>
-                      </li>
-                      <li>
-                          X11-forwarding: <span class="error">X</span>
-                      </li>
-                  </ul>
-              </div>
-          </div>
-          <app-terminal-line *ngFor="let line of lines" [line]="line">
-          </app-terminal-line>
-          <app-active-terminal-line (terminalCommandEvent)="run_command($event)" (emit_line_event)="add_message($event)">
-          </app-active-terminal-line>
-      </div>
-    </div>
-  `,
+        <app-window [height]="'500px'" [width]="'500px'" [visibility]="visibility" [name]="'Terminal'">
+        </app-window>
+            <div class="terminal">
+                <div class="terminal-internal terminal-styling">
+                    <div class="official-message-box">
+                        <div>
+                            <div class="welcome-message">
+                                Welcome to the website of Bram van Wersch. From here you can find all sorts of things about my work, but only if you look hard enough.
+                            </div>
+                            <div>
+                                > SSH session to anomymous&#64;web
+                            </div>
+                            <ul>
+                                <li>
+                                    SSH compression: <span class="good">V</span>
+                                </li>
+                                <li>
+                                    SSH-browser: <span class="good">V</span>
+                                </li>
+                                <li>
+                                    X11-forwarding: <span class="error">X</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <app-terminal-line *ngFor="let line of lines" [line]="line">
+                    </app-terminal-line>
+                    <app-active-terminal-line (terminalCommandEvent)="run_command($event)" (emit_line_event)="add_message($event)">
+                    </app-active-terminal-line>
+                </div>
+            </div>
+        `,
     styles: `
     .terminal{
         height: 100%;
@@ -77,6 +81,7 @@ import { COMMAND_MAPPING } from '../src/command_definitions';
 })
 export class TerminalComponent implements OnInit {
 
+    @Input() visibility!: string;
     lines: TerminalLineOutput[]
 
     constructor() {
