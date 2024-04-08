@@ -16,9 +16,8 @@ import { WindowComponent } from './window.component';
         NgFor
     ],
     template: `
-        <app-window [height]="'500px'" [width]="'500px'" [visibility]="visibility" [name]="'Terminal'">
-        </app-window>
-            <div class="terminal">
+        <app-window [height]="'60%'" [width]="'80%'" [visibility]="visibility" [name]="'Terminal'">
+            <div class="terminal window-content">
                 <div class="terminal-internal terminal-styling">
                     <div class="official-message-box">
                         <div>
@@ -47,6 +46,7 @@ import { WindowComponent } from './window.component';
                     </app-active-terminal-line>
                 </div>
             </div>
+        </app-window>
         `,
     styles: `
     .terminal{

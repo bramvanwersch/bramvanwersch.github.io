@@ -14,6 +14,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                     X
                 </div>
             </div>
+            <ng-content selector=".window-content">
+            </ng-content>
         </div>
     `,
     styles: `
