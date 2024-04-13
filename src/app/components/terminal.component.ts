@@ -16,7 +16,7 @@ import { WindowComponent } from './window.component';
         NgFor
     ],
     template: `
-        <app-window [height]="'60%'" [width]="'80%'" [visibility]="visibility" [name]="'Terminal'">
+        <app-window [height]="'80%'" [width]="'80%'" [name]="'Terminal'">
             <div class="terminal window-content">
                 <div class="terminal-internal terminal-styling">
                     <div class="official-message-box">
@@ -81,7 +81,6 @@ import { WindowComponent } from './window.component';
 })
 export class TerminalComponent implements OnInit {
 
-    @Input() visibility!: string;
     lines: TerminalLineOutput[]
 
     constructor() {

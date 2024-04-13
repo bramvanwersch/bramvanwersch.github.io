@@ -1,5 +1,6 @@
 import { NgStyle } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { SESSION, Session } from '../src/session';
 
 @Component({
     selector: 'app-window',
@@ -8,7 +9,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         NgStyle
     ],
     template: `
-        <div class="window" [ngStyle]="{width: width, height: height, visibility: visibility}">
+        <div class="window" [ngStyle]="{width: width, height: height, visibility: get_visibility()}">
             <div class="window-top-bar">
                 <div class="close-button" (click)="close_window()">
                     X
@@ -51,12 +52,15 @@ export class WindowComponent {
     @Input() height!: string;
     @Input() width!: string;
     @Input() name!: string;
-    @Input() visibility: string = "visible";
 
     @Output() close_window_event = new EventEmitter<string>();
 
     close_window(){
-        this.close_window_event.emit(this.name);    
+        SESSION.set_visibility(this.name, 'hidden');
+    }
+
+    get_visibility(): string{
+        return SESSION.get_visibility(this.name);
     }
 }
 

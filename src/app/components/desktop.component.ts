@@ -1,18 +1,20 @@
 import { Component} from '@angular/core';
 import { DesktopIconComponent } from './desktop-icon.component';
-import { WindowComponent } from './window.component';
 import { TerminalComponent } from "./terminal.component";
+import { SESSION } from '../src/session';
 
 @Component({
     selector: 'app-desktop',
     standalone: true,
     template: `
         <div id="main-desktop">
-            <img id="background-image" src="assets/thebackofthejack.jpg" class="unselectable">
-            <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Terminal'">
-            </app-desktop-icon>
-            <app-terminal [visibility]="'visible'">
-            </app-terminal>
+            <div id="desktop-body">
+                <img id="background-image" src="assets/thebackofthejack.jpg" class="unselectable">
+                <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Terminal'">
+                </app-desktop-icon>
+                <app-terminal>
+                </app-terminal>
+            </div>
             <div id="bottom-border">
                 <img id="desktop-icon" src="assets/grid-3x3-gap-fill.svg">
             </div>
@@ -24,17 +26,27 @@ import { TerminalComponent } from "./terminal.component";
             position: relative;
             flex-direction: column;
             height: 100%;
+            width: 100%;
             background-color: black;
         }
 
+        #desktop-body{
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
         #background-image{
-            max-width: 100%;
+            flex-grow: 1;
             height: 100%;
+            max-height: 100%;
         }
 
         #bottom-border{
-            position: relative;
+            position: absolute;
+            bottom: 0;
             height: 50px;
+            z-index:100;
             background-color: grey;
         }
 
@@ -54,32 +66,8 @@ import { TerminalComponent } from "./terminal.component";
 )
 export class DesktopComponent {
 
-    window_visibilty: Map<string, string>
-
-    constructor(){
-        this.window_visibilty = new Map();
-        this._add_program("Terminal");
+    open_window(name: string){
+        SESSION.set_visibility(name, 'visible');
     }
-
-    _add_program(name: string){
-        this.window_visibilty.set(name, "hidden")
-    }
-
-    open_window(event: string){
-        this.window_visibilty.set(event, 'visible');
-    }
-
-    close_window(event: string){
-        this.window_visibilty.set(event, 'hidden');
-    }
-
-    get_visibility(key: string): string{
-        let value = this.window_visibilty.get(key);
-        if (value === undefined){
-            throw "Invalid desktop icon name provided";
-        }
-        return value;
-    }
-
 }
 
