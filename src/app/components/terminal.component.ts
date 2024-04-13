@@ -16,7 +16,7 @@ import { WindowComponent } from './window.component';
         NgFor
     ],
     template: `
-        <app-window [height]="'80%'" [width]="'80%'" [name]="'Terminal'">
+        <app-window [height]="'calc(80% - 50px)'" [width]="'calc(80% - 50px)'" [name]="'Terminal'">
             <div class="terminal window-content">
                 <div class="terminal-internal terminal-styling">
                     <div class="official-message-box">
@@ -54,6 +54,7 @@ import { WindowComponent } from './window.component';
         width: 100%;
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
     }
 
     .terminal-internal{

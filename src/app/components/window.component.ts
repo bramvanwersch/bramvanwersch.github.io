@@ -9,24 +9,23 @@ import { SESSION, Session } from '../src/session';
         NgStyle
     ],
     template: `
-        <div class="window" [ngStyle]="{width: width, height: height, visibility: get_visibility()}">
+        <div class="window" [ngStyle]="{width: width, height: height, display: get_visibility()}">
             <div class="window-top-bar">
                 <div class="close-button" (click)="close_window()">
                     X
                 </div>
             </div>
-            <ng-content selector=".window-content">
+            <ng-content selector=".window-content" class="internal-window">
             </ng-content>
         </div>
     `,
     styles: `
         .window{
             position: absolute;
+            flex-direction: column;
             background-color: lightgrey;
-            height: 10px;
-            width: 10px;
-            top: 100px;
-            left: 100px;
+            top: 10%;
+            left: 10%;
         }
 
         .window-top-bar{
@@ -56,7 +55,7 @@ export class WindowComponent {
     @Output() close_window_event = new EventEmitter<string>();
 
     close_window(){
-        SESSION.set_visibility(this.name, 'hidden');
+        SESSION.set_visibility(this.name, false);
     }
 
     get_visibility(): string{

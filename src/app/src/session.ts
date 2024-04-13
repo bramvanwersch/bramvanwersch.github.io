@@ -19,13 +19,17 @@ export class Session{
     get_visibility(name: string): string{
         let value = this.window_visibility.get(name);
         if (!value){
-            return 'hidden';
+            return 'none';
         }
         return value;
     }
 
-    set_visibility(name: string, value: string){
-        this.window_visibility.set(name, value);
+    set_visibility(name: string, value: boolean){
+        let set_value = 'none';
+        if (value){
+            set_value = 'flex';
+        }
+        this.window_visibility.set(name, set_value);
     }
 }
 

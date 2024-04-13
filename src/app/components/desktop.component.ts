@@ -34,19 +34,18 @@ import { SESSION } from '../src/session';
             flex-grow: 1;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         #background-image{
             flex-grow: 1;
-            height: 100%;
-            max-height: 100%;
         }
 
         #bottom-border{
             position: absolute;
             bottom: 0;
             height: 50px;
-            z-index:100;
+            width: 100%;
             background-color: grey;
         }
 
@@ -67,7 +66,7 @@ import { SESSION } from '../src/session';
 export class DesktopComponent {
 
     open_window(name: string){
-        SESSION.set_visibility(name, 'visible');
+        SESSION.set_visibility(name, true);
     }
 }
 

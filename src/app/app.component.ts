@@ -11,7 +11,8 @@ import { DesktopComponent } from './components/desktop.component';
     ],
     template: `
     <div id="main">
-        <app-desktop></app-desktop>
+        <app-desktop>
+        </app-desktop>
     </div>
     <router-outlet />
     `,
