@@ -52,6 +52,12 @@ export class ActiveTerminalLineComponent {
         (event.target as HTMLInputElement).value = "";
         this.terminalCommandEvent.emit(value);
         this.prefix = SESSION.get_prefix();
+        // bit weird, but it works
+        setTimeout(()=>{
+            let anchor = document.getElementById("active-line");
+            anchor?.scrollIntoView({ block: 'start' })
+        }, 0)
+        
     }
 
     autocomplete(event: Event) {

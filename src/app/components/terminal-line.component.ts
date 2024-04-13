@@ -12,22 +12,22 @@ import { NgClass, NgFor, NgSwitch, NgSwitchCase } from '@angular/common';
         NgFor
     ],
     template: `
-  <div [ngSwitch]="line.type">
-    <div *ngSwitchCase="lineType.MESSAGE">
-        <div *ngFor="let l of line.lines" [innerHTML]="l" class="command-response">
+        <div [ngSwitch]="line.type">
+            <div *ngSwitchCase="lineType.MESSAGE">
+                <div *ngFor="let l of line.lines" [innerHTML]="l" class="command-response">
+                </div>
+            </div>
+            <div *ngSwitchCase="lineType.ERROR">
+                <div *ngFor="let l of line.lines" [innerHTML]="l" class="error">
+                </div>
+            </div>
+            <div *ngSwitchCase="lineType.COMMAND">
+                <div>
+                    {{ line.prefix }}<span class="command-response">{{ line.lines[0] }}</span>
+                </div>
+            </div>
         </div>
-    </div>
-    <div *ngSwitchCase="lineType.ERROR">
-        <div *ngFor="let l of line.lines" [innerHTML]="l" class="error">
-        </div>
-    </div>
-    <div *ngSwitchCase="lineType.COMMAND">
-        <div>
-            {{ line.prefix }}<span class="command-response">{{ line.lines[0] }}</span>
-        </div>
-    </div>
-  </div>
-`,
+    `,
     styles: `
   .command-response{
       color: var(--response-color);

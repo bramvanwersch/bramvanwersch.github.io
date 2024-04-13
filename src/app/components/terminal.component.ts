@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TerminalLineComponent } from './terminal-line.component';
 import { NgFor } from '@angular/common';
 import { LineType, TerminalLineOutput } from '../src/output_lines';
@@ -17,7 +17,7 @@ import { WindowComponent } from './window.component';
     ],
     template: `
         <app-window [height]="'calc(80% - 50px)'" [width]="'calc(80% - 50px)'" [name]="'Terminal'">
-            <div class="terminal window-content">
+            <div class="terminal window-content" id="terminal-window">
                 <div class="terminal-internal terminal-styling">
                     <div class="official-message-box">
                         <div>
@@ -82,7 +82,7 @@ import { WindowComponent } from './window.component';
 })
 export class TerminalComponent implements OnInit {
 
-    lines: TerminalLineOutput[]
+    lines: TerminalLineOutput[];
 
     constructor() {
         this.lines = [];
@@ -104,7 +104,7 @@ export class TerminalComponent implements OnInit {
     }
 
     add_message(event: TerminalLineOutput) {
-        this.lines.push(event);
+        this.lines.push(event);    
     }
 
     _get_arguments(input: string): string[] {
