@@ -27,6 +27,7 @@ import { SESSION } from '../src/session';
             flex-direction: column;
             height: 100%;
             width: 100%;
+            overflow: hidden;
             background-color: black;
         }
 

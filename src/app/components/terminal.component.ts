@@ -5,6 +5,7 @@ import { LineType, TerminalLineOutput } from '../src/output_lines';
 import { ActiveTerminalLineComponent } from './active-terminal-line.component';
 import { COMMAND_MAPPING } from '../src/command_definitions';
 import { WindowComponent } from './window.component';
+import { SESSION } from '../src/session';
 
 @Component({
     selector: 'app-terminal',
@@ -16,7 +17,7 @@ import { WindowComponent } from './window.component';
         NgFor
     ],
     template: `
-        <app-window [height]="'calc(80% - 50px)'" [width]="'calc(80% - 50px)'" [name]="'Terminal'">
+        <app-window [height]="'calc(80% - 50px)'" [width]="'calc(80% - 50px)'" [name]="name">
             <div class="terminal window-content" id="terminal-window">
                 <div class="terminal-internal terminal-styling">
                     <div class="official-message-box">
@@ -83,9 +84,12 @@ import { WindowComponent } from './window.component';
 export class TerminalComponent implements OnInit {
 
     lines: TerminalLineOutput[];
+    name: string;
 
     constructor() {
         this.lines = [];
+        this.name = "Terminal";
+        SESSION.set_visibility(this.name, true);
     }
 
     ngOnInit(): void {

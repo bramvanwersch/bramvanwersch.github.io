@@ -5,11 +5,13 @@ export class Session{
     current_dir: string
     current_user: string
     window_visibility: Map<string, string>
+    current_id_counter: number
 
     constructor(){
         this.current_user = "anonymous"
         this.current_dir = `~`;
         this.window_visibility = new Map();
+        this.current_id_counter = 0;
     }
 
     get_prefix(): string{
@@ -30,6 +32,10 @@ export class Session{
             set_value = 'flex';
         }
         this.window_visibility.set(name, set_value);
+    }
+
+    get_unique_id(): string{
+        return `my-website-id-${this.current_id_counter++}`;
     }
 }
 
