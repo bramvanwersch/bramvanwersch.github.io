@@ -89,7 +89,6 @@ export class TerminalComponent implements OnInit {
     constructor() {
         this.lines = [];
         this.name = "Terminal";
-        SESSION.set_visibility(this.name, true);
     }
 
     ngOnInit(): void {

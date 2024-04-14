@@ -2,6 +2,7 @@ import { Component} from '@angular/core';
 import { DesktopIconComponent } from './desktop-icon.component';
 import { TerminalComponent } from "./terminal.component";
 import { SESSION } from '../src/session';
+import { DualJumperGameComponent } from "./dual_jumper_game.component";
 
 @Component({
     selector: 'app-desktop',
@@ -10,10 +11,14 @@ import { SESSION } from '../src/session';
         <div id="main-desktop">
             <div id="desktop-body">
                 <img id="background-image" src="assets/thebackofthejack.jpg" class="unselectable">
-                <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Terminal'">
+                <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Terminal'" [position]="0" [image]="'assets/terminal-icon.svg'">
                 </app-desktop-icon>
                 <app-terminal>
                 </app-terminal>
+                <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Dual-jumper'" [position]="1" [image]="'assets/dual-jumper-icon.png'">
+                </app-desktop-icon>
+                <app-dual-jumper-game>
+                </app-dual-jumper-game>
             </div>
             <div id="bottom-border">
                 <img id="desktop-icon" src="assets/grid-3x3-gap-fill.svg">
@@ -60,7 +65,8 @@ import { SESSION } from '../src/session';
     `,
     imports: [
         DesktopIconComponent,
-        TerminalComponent
+        TerminalComponent,
+        DualJumperGameComponent
     ]
 }
 )
