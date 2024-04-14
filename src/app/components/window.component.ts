@@ -31,7 +31,7 @@ import { SESSION, Session } from '../src/session';
         .window-top-bar{
             background-color: grey;
             height: 30px;
-            position: relative;
+            min-height: 30px;
         }
 
         .close-button{

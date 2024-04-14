@@ -289,7 +289,6 @@ class Platform extends GameObject {
 
 class Coin extends GameObject {
     constructor(x, y, tileSet) {
-        let size = 50;
         super(x, y, COIN_SIZE, COIN_SIZE, null);
         this.tileSet = tileSet;
         this.animation = new Animation(7, [0, 1, 2, 3, 4, 5, 6, 7], true)
@@ -435,7 +434,7 @@ class Player extends GameObject {
 
     calcGpe() {
         // because pixels divide
-        return this.mass * (9.8 / 1000000) * ((WORLD_HEIGHT - this.rect.height) - (this.rect.y / 32));  // last 32 is a smoothing parameter
+        return this.mass * (9.8 / 1000000) * ((800 - this.rect.height) - (this.rect.y / 32));  // last 32 is a smoothing parameter
     }
 
 }
