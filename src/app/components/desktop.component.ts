@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DesktopIconComponent } from './desktop-icon.component';
 import { TerminalComponent } from "./terminal.component";
 import { SESSION } from '../src/session';
@@ -71,7 +71,11 @@ import { NgIf } from '@angular/common';
     ]
 }
 )
-export class DesktopComponent {
+export class DesktopComponent implements OnInit{
+    
+    ngOnInit(): void {
+        this.open_window("Terminal");
+    }
 
     open_window(name: string){
         SESSION.set_visibility(name, true);

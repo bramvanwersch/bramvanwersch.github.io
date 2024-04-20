@@ -32,7 +32,6 @@ export class DualJumperGameComponent implements OnInit, OnDestroy{
 
     constructor() {
         this.name = "Dual-jumper";
-        SESSION.set_visibility(this.name, true);
     }
     
     ngOnInit(): void {
