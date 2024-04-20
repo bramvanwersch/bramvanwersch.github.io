@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TerminalLineComponent } from './terminal-line.component';
 import { NgFor } from '@angular/common';
 import { ActiveTerminalLineComponent } from './active-terminal-line.component';
 import { WindowComponent } from './window.component';
 import { SESSION } from '../src/session';
-import { init } from '../src/game_src/dual_jumper_game.js';
+import { init_game, close_game } from '../src/game_src/dual_jumper_game.js';
 
 @Component({
     selector: 'app-dual-jumper-game',
@@ -26,7 +26,7 @@ import { init } from '../src/game_src/dual_jumper_game.js';
         }
     `
 })
-export class DualJumperGameComponent implements OnInit{
+export class DualJumperGameComponent implements OnInit, OnDestroy{
 
     name: string;
 
@@ -34,7 +34,12 @@ export class DualJumperGameComponent implements OnInit{
         this.name = "Dual-jumper";
         SESSION.set_visibility(this.name, true);
     }
+    
     ngOnInit(): void {
-        init();
+        init_game();
+    }
+
+    ngOnDestroy(): void {
+        close_game();
     }
 }

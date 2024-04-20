@@ -48,7 +48,8 @@ const GAME_STATES = {
     ALIVE: "a",
     DEAD: "d",
     WIN: "w",
-    PAUSED: "p"
+    PAUSED: "p",
+    STOP: "s"
 }
 
 const STAGES = [
@@ -124,7 +125,7 @@ var fontSize = 0;
 var fontChange = 0;
 
 
-export function init() {
+export function init_game() {
     // these will be drawn depending on gamestate
     BUTTONS = [];
 
@@ -163,6 +164,10 @@ export function init() {
     })
 
     main();
+}
+
+export function close_game(){
+    gameState = GAME_STATES.STOP;
 }
 
 
@@ -498,6 +503,10 @@ function main() {
         notifyText(`You won stage ${currentStage} in ${totalFrames} frames. Congratulations.`);
         // slow down camera
         camera.multiply(0.9);
+    }
+    else if (gameState == GAME_STATES.STOP){
+        // stops the game
+        return;
     }
     else {
         draw();

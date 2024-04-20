@@ -1,15 +1,15 @@
 import { NgStyle } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { SESSION, Session } from '../src/session';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { SESSION } from '../src/session';
 
 @Component({
     selector: 'app-window',
     standalone: true,
     imports: [
-        NgStyle
+        NgStyle,
     ],
     template: `
-        <div class="window" [ngStyle]="{width: width, height: height, display: get_visibility()}" [id]="windown_unique_id">
+        <div class="window" [ngStyle]="{width: width, height: height}" [id]="windown_unique_id">
             <div class="window-top-bar" [id]="top_unique_id">
                 <div class="close-button" (click)="close_window()">
                     X
@@ -22,6 +22,7 @@ import { SESSION, Session } from '../src/session';
     styles: `
         .window{
             position: absolute;
+            display: flex;
             flex-direction: column;
             background-color: lightgrey;
             top: 10%;
@@ -75,9 +76,6 @@ export class WindowComponent implements OnInit {
         SESSION.set_visibility(this.name, false);
     }
 
-    get_visibility(): string {
-        return SESSION.get_visibility(this.name);
-    }
 
     set_drag_window() {
         // https://www.w3schools.com/howto/howto_js_draggable.asp

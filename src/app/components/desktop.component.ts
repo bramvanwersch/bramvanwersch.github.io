@@ -1,8 +1,9 @@
-import { Component} from '@angular/core';
+import { Component } from '@angular/core';
 import { DesktopIconComponent } from './desktop-icon.component';
 import { TerminalComponent } from "./terminal.component";
 import { SESSION } from '../src/session';
 import { DualJumperGameComponent } from "./dual_jumper_game.component";
+import { NgIf } from '@angular/common';
 
 @Component({
     selector: 'app-desktop',
@@ -13,11 +14,11 @@ import { DualJumperGameComponent } from "./dual_jumper_game.component";
                 <img id="background-image" src="assets/thebackofthejack.jpg" class="unselectable">
                 <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Terminal'" [position]="0" [image]="'assets/terminal-icon.svg'">
                 </app-desktop-icon>
-                <app-terminal>
+                <app-terminal *ngIf="is_visible('Terminal')">
                 </app-terminal>
                 <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Dual-jumper'" [position]="1" [image]="'assets/dual-jumper-icon.png'">
                 </app-desktop-icon>
-                <app-dual-jumper-game>
+                <app-dual-jumper-game *ngIf="is_visible('Dual-jumper')">
                 </app-dual-jumper-game>
             </div>
             <div id="bottom-border">
@@ -56,14 +57,14 @@ import { DualJumperGameComponent } from "./dual_jumper_game.component";
         }
 
         #desktop-icon{
-            height:45px;
-            width: 45px;
+            height:48px;
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 1;
+            left: 1;
         }
     `,
     imports: [
+        NgIf,
         DesktopIconComponent,
         TerminalComponent,
         DualJumperGameComponent
@@ -74,6 +75,10 @@ export class DesktopComponent {
 
     open_window(name: string){
         SESSION.set_visibility(name, true);
+    }
+
+    is_visible(name: string): boolean {        
+        return SESSION.get_visibility(name);
     }
 }
 

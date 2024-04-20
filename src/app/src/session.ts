@@ -4,7 +4,7 @@ export class Session{
 
     current_dir: string
     current_user: string
-    window_visibility: Map<string, string>
+    window_visibility: Map<string, boolean>
     current_id_counter: number
 
     constructor(){
@@ -18,20 +18,16 @@ export class Session{
         return `${SESSION.current_user}@web: ${SESSION.current_dir}/>`;
     }
 
-    get_visibility(name: string): string{
+    get_visibility(name: string): boolean{
         let value = this.window_visibility.get(name);
         if (!value){
-            return 'none';
+            return false;
         }
         return value;
     }
 
     set_visibility(name: string, value: boolean){
-        let set_value = 'none';
-        if (value){
-            set_value = 'flex';
-        }
-        this.window_visibility.set(name, set_value);
+        this.window_visibility.set(name, value);
     }
 
     get_unique_id(): string{
