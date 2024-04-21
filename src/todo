@@ -1,16 +1,18 @@
-
 general:
 - add icons to the bottom
 - allow for minimizing
 - make sure that the corner icon does something
 - add an AI capability (no acutal ai)
-- windows should be fullcsreened initially and be adjustable
+- windows should be fullcsreened initially
+- windows should be size adjustable
 
 game:
 - buttons in game dont work
 
+AI:
+- add an AI capability (no acutal ai)
+
 terminal:
-- make whole terminal clickable for cursor
 - add also things on desktop, mb integrate with adding it
 - allow go back up for last command
 - make sure that autocomplete for paths works

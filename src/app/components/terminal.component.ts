@@ -20,7 +20,7 @@ import { SESSION } from '../src/session';
         <app-window [height]="'calc(80% - 50px)'" [width]="'calc(80% - 50px)'" [name]="name">
             <div class="terminal window-content" id="terminal-window">
                 <div class="terminal-internal terminal-styling">
-                    <div class="official-message-box">
+                    <div id="official-message-box">
                         <div>
                             <div class="welcome-message">
                                 Welcome to the website of Bram van Wersch. From here you can find all sorts of things about my work, but only if you look hard enough.
@@ -66,7 +66,7 @@ import { SESSION } from '../src/session';
         border-color: rgb(112, 109, 109);
     }
 
-    .official-message-box{
+    #official-message-box{
         border-width: 2px;
         margin: 5px;
         padding: 10px;
@@ -93,6 +93,22 @@ export class TerminalComponent implements OnInit {
 
     ngOnInit(): void {
         this.run_command("help");
+
+        let message_box = document.getElementById("terminal-window");
+        if (message_box == null){
+            console.log('No clicking the terminal for you');
+            return;
+        }
+        message_box.onclick = click_terminal;
+
+        function click_terminal(event: MouseEvent){
+            let input = document.getElementById("active-line-input");
+            if (input == null){
+                console.log("cant find input for terminal setting");
+                return;
+            }
+            input.focus();
+        }
     }
 
     run_command(input: string) {
