@@ -107,7 +107,7 @@ export class TerminalComponent implements OnInit {
     }
 
     add_message(event: TerminalLineOutput) {
-        this.lines.push(event);    
+        this.lines.push(event);
     }
 
     _get_arguments(input: string): string[] {

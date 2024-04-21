@@ -11,6 +11,9 @@ import { SESSION } from '../src/session';
     template: `
         <div class="window" [ngStyle]="{width: width, height: height}" [id]="windown_unique_id">
             <div class="window-top-bar" [id]="top_unique_id">
+                <div class="window-name">
+                    {{ name }}
+                </div>
                 <div class="close-button" (click)="close_window()">
                     X
                 </div>
@@ -35,6 +38,14 @@ import { SESSION } from '../src/session';
             min-height: 30px;
         }
 
+        .window-name{
+            display: flex;
+            margin-left: 10px;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+        }
+
         .close-button{
             cursor: pointer;
             text-align: center;
@@ -47,6 +58,9 @@ import { SESSION } from '../src/session';
             border-radius: 3px;
             border-color: black;     
             background-color: red;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
     `}
 )
