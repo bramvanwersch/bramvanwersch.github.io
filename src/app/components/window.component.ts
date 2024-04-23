@@ -9,13 +9,16 @@ import { SESSION } from '../src/session';
         NgStyle,
     ],
     template: `
-        <div class="window" [ngStyle]="{width: width, height: height}" [id]="windown_unique_id">
+        <div class="window" [ngStyle]="{width: width, height: height, display: get_display()}" [id]="windown_unique_id">
             <div class="window-top-bar" [id]="top_unique_id">
                 <div class="window-name">
                     {{ name }}
                 </div>
-                <div class="close-button" (click)="close_window()">
+                <div class="top-button close-button" (click)="close_window()">
                     X
+                </div>
+                <div class="top-button minimize-button" (click)="hide_window()">
+                    -
                 </div>
             </div>
             <ng-content selector=".window-content" class="internal-window">
@@ -30,6 +33,25 @@ import { SESSION } from '../src/session';
             background-color: lightgrey;
             top: 10%;
             left: 10%;
+        }
+
+        .top-button{
+            cursor: pointer;
+            text-align: center;
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            border-style: solid;
+            border-radius: 3px;
+            border-color: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .minimize-button{
+            top: 3px;
+            right: 30px;
         }
 
         .window-top-bar{
@@ -47,20 +69,9 @@ import { SESSION } from '../src/session';
         }
 
         .close-button{
-            cursor: pointer;
-            text-align: center;
-            position: absolute;
             top: 3px;
             right: 3px;
-            height: 18px;
-            width: 18px;
-            border-style: solid;
-            border-radius: 3px;
-            border-color: black;     
             background-color: red;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
     `}
 )
@@ -87,24 +98,46 @@ export class WindowComponent implements OnInit {
     }
 
     close_window() {
-        SESSION.set_visibility(this.name, false);
+        let window = SESSION.windows.get(this.name);
+        if (!window){
+            return
+        }
+        window.open_window(false);
     }
 
+    get_display(): string{
+        let window = SESSION.windows.get(this.name);
+        if (!window){
+            return 'none';
+        }        
+        if (window.visible){
+            return 'flex';
+        }
+        return 'none';
+    }
+
+    hide_window(){
+        let window = SESSION.windows.get(this.name);
+        if (!window){
+            return
+        }
+        window.visible = false;
+    }
 
     set_drag_window() {
         // https://www.w3schools.com/howto/howto_js_draggable.asp
         var element = document.getElementById(this.windown_unique_id);
         if (element == null){
-            console.log('ow noo, dragging is not working.');
+           console.log('ow noo, dragging is not working.');
             return;
         }
         var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         let top_element = document.getElementById(this.top_unique_id);
-        
+
         if (top_element){
             top_element.onmousedown = dragMouseDown;
         }
-        
+
         function dragMouseDown(event: MouseEvent) {
             event.preventDefault();
             // get the mouse cursor position at startup:

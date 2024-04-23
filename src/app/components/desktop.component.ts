@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { DesktopIconComponent } from './desktop-icon.component';
 import { TerminalComponent } from "./terminal.component";
-import { SESSION } from '../src/session';
+import { MyWindow, SESSION } from '../src/session';
 import { DualJumperGameComponent } from "./dual_jumper_game.component";
-import { NgIf } from '@angular/common';
+import { NgIf, NgFor } from '@angular/common';
 
 @Component({
     selector: 'app-desktop',
@@ -12,17 +12,20 @@ import { NgIf } from '@angular/common';
         <div id="main-desktop">
             <div id="desktop-body">
                 <img id="background-image" src="assets/thebackofthejack.jpg" class="unselectable">
-                <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Terminal'" [position]="0" [image]="'assets/terminal-icon.svg'">
+                <app-desktop-icon *ngFor="let window of all_windows(); index as i" [name]="window.name" [position]="i" [image]="window.icon">
                 </app-desktop-icon>
                 <app-terminal *ngIf="is_visible('Terminal')">
                 </app-terminal>
-                <app-desktop-icon (open_window_event)="open_window($event)" [name]="'Dual-jumper'" [position]="1" [image]="'assets/dual-jumper-icon.png'">
-                </app-desktop-icon>
                 <app-dual-jumper-game *ngIf="is_visible('Dual-jumper')">
                 </app-dual-jumper-game>
             </div>
             <div id="bottom-border">
-                <img id="desktop-icon" src="assets/grid-3x3-gap-fill.svg">
+                <div>
+                    <img class="bottom-icon" src="assets/grid-3x3-gap-fill.svg">
+                </div>
+                <div *ngFor="let window of all_windows()">
+                    <img class="bottom-icon" [src]="window.icon" *ngIf="window._open" (click)="show_window(window.name)">
+                </div>
             </div>
         </div>
     `,
@@ -50,39 +53,54 @@ import { NgIf } from '@angular/common';
 
         #bottom-border{
             position: absolute;
+            display: flex;
             bottom: 0;
             height: 50px;
             width: 100%;
             background-color: grey;
         }
 
-        #desktop-icon{
-            height:48px;
-            position: absolute;
-            top: 1;
-            left: 1;
+        .bottom-icon{
+            margin-right: 5px;
+            margin-top: 5px;
+            height:40px;
         }
     `,
     imports: [
         NgIf,
+        NgFor,
         DesktopIconComponent,
         TerminalComponent,
         DualJumperGameComponent
     ]
-}
-)
+})
 export class DesktopComponent implements OnInit{
-    
+
+
+    constructor(){
+    }
+
     ngOnInit(): void {
-        this.open_window("Terminal");
     }
 
-    open_window(name: string){
-        SESSION.set_visibility(name, true);
+    all_windows(): Array<MyWindow>{
+        return Array.from(SESSION.windows.values());
     }
 
-    is_visible(name: string): boolean {        
-        return SESSION.get_visibility(name);
+    
+    show_window(name: string){
+        let window = SESSION.windows.get(name);
+        if (!window){
+            return
+        }
+        window.visible = true;
+    }
+
+    is_visible(name: string): boolean {
+        let window = SESSION.windows.get(name);
+        if (!window){
+            return false;
+        }
+        return window._open
     }
 }
-

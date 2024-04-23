@@ -1,5 +1,6 @@
 import { NgStyle } from '@angular/common';
 import { Component, EventEmitter, Input, Output} from '@angular/core';
+import { SESSION } from '../src/session';
 
 @Component({
     selector: 'app-desktop-icon',
@@ -38,10 +39,12 @@ export class DesktopIconComponent {
     @Input() position!: number;
     @Input() image!: string;
 
-    @Output() open_window_event = new EventEmitter<string>();
-
     on_dblclick(){
-        this.open_window_event.emit(this.name);
+        let window = SESSION.windows.get(this.name);
+        if (!window){
+            return
+        }
+        window.open_window(true);
     }
 
     get_top(): string{
